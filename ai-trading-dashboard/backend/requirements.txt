@@ -7,8 +7,8 @@ numpy==1.26.4
 feedparser==6.0.11
 python-dotenv==1.0.1
 
-# ==== Disiapkan untuk integrasi Database (lihat Documentation-Program.md §8) ====
-# prisma==0.15.0
+# ==== Database (Supabase + Prisma) — lihat Enhancement-system-setup_DatabaseSupabase.md ====
+prisma==0.15.0
 
 # ==== Disiapkan untuk Tahap 3 (Auth & Billing) ====
 # passlib[bcrypt]==1.7.4
