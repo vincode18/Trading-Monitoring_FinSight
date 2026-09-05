@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background-color: #0e1117;
+  color: #f0f3f6;
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar tipis, konsisten dengan tema dense/dark */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0e1117;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a313c;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3a4350;
+}
+
+/* Focus ring yang tetap terlihat untuk aksesibilitas keyboard,
+   tapi tidak norak di tema dark */
+:focus-visible {
+  outline: 2px solid #00e676;
+  outline-offset: 2px;
+}
+
+/* Angka finansial pakai tabular-nums supaya kolom tabel align rapi */
+.font-mono,
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
