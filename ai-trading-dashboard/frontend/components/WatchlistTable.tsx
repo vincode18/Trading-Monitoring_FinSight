@@ -42,6 +42,7 @@ export function WatchlistTable({
             <th className="px-3 py-2 text-right font-medium">Harga</th>
             <th className="px-3 py-2 text-right font-medium">Perubahan</th>
             <th className="px-3 py-2 text-right font-medium">%</th>
+            <th className="px-3 py-2 text-right font-medium">Mkt Cap</th>
             <th className="px-3 py-2 font-medium">Status</th>
           </tr>
         </thead>
@@ -79,6 +80,17 @@ export function WatchlistTable({
                   }`}
                 >
                   {formatPercent(q.change_pct)}
+                </td>
+                <td className="px-3 py-2 text-right font-mono text-xs tabular-nums text-text-secondary">
+                  {q.market_cap != null
+                    ? q.market_cap >= 1e12
+                      ? `${(q.market_cap / 1e12).toFixed(2)}T`
+                      : q.market_cap >= 1e9
+                        ? `${(q.market_cap / 1e9).toFixed(2)}B`
+                        : q.market_cap >= 1e6
+                          ? `${(q.market_cap / 1e6).toFixed(1)}M`
+                          : q.market_cap.toFixed(0)
+                    : '—'}
                 </td>
                 <td className="px-3 py-2 text-xs text-text-muted">
                   {q.market_state || '—'}

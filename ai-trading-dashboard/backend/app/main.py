@@ -14,10 +14,13 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
-from app.api import chart, market, news
+from app.api import analysis, auth, chart, market, news
 from app.config.settings import settings
 from app.core.db import connect_db, disconnect_db
+from app.core.rate_limit import limiter
 
 
 @asynccontextmanager
@@ -43,18 +46,23 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS: izinkan frontend (Next.js, biasanya port 3000) mengakses API ini
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# CORS ketat: hanya method & header yang dipakai frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
+app.include_router(auth.router)
 app.include_router(market.router)
 app.include_router(chart.router)
 app.include_router(news.router)
+app.include_router(analysis.router)
 
 
 @app.get("/api/health", tags=["health"])

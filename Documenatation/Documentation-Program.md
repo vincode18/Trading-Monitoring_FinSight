@@ -1,8 +1,8 @@
 # Documentation - Program
 ## AI Trading Dashboard — Dokumentasi Teknis & Flow Proses
 
-> **Versi Dokumen:** 2.0
-> **Terakhir Diperbarui:** 5 September 2026
+> **Versi Dokumen:** 2.1
+> **Terakhir Diperbarui:** 6 September 2026
 > **Audiens:** Developer, engineer yang melanjutkan/memelihara kode ini, AI agent
 > **Panduan ringkas Tahap 2:** lihat `Documenatation/docu.md` dan `ai-trading-dashboard/README-Tahap2.md`
 
@@ -111,8 +111,8 @@ Semua nilai konfigurasi dibaca dari environment variable (file `.env`) lewat kel
 | `CACHE_TTL_SECONDS` | `60` | Lama cache data harga (detik) sebelum fetch ulang | 1 |
 | `NEWS_MAX_ITEMS` | `8` | Jumlah maksimal berita ditampilkan per simbol | 1 |
 | `DATABASE_URL` | — | Koneksi database (belum dipakai) | 2 |
-| `JWT_SECRET_KEY` | — | Kunci rahasia untuk token auth (belum dipakai) | 2 |
-| `JWT_EXPIRE_MINUTES` | `1440` | Masa berlaku token login (belum dipakai) | 2 |
+| `JWT_SECRET_KEY` | — | Kunci rahasia JWT (wajib di `.env` lokal) | 2 |
+| `JWT_EXPIRE_MINUTES` | `1440` | Masa berlaku token login (menit) | 2 |
 | `MIDTRANS_SERVER_KEY` | — | Kredensial server Midtrans (belum dipakai) | 3 |
 | `MIDTRANS_CLIENT_KEY` | — | Kredensial client Midtrans (belum dipakai) | 3 |
 | `MIDTRANS_IS_PRODUCTION` | `false` | Toggle sandbox/production Midtrans (belum dipakai) | 3 |
@@ -491,17 +491,60 @@ yfinance ──► Yahoo Finance  /  feedparser ──► Google News RSS (fallb
 
 ### 7.5 Batasan yang Masih Ada (Belum Selesai)
 
-Implementasi Tahap 2 ini **baru mengganti arsitektur presentasi**, bukan menyelesaikan seluruh roadmap Tahap 2 dari `PRD.md`. Yang **belum** ada:
+Implementasi Tahap 2 ini **baru mengganti arsitektur presentasi**, bukan menyelesaikan seluruh roadmap Tahap 2 dari `PRD.md`. Status keamanan & infrastruktur:
 
-| Area | Kondisi Saat Ini | Yang Masih Perlu Dikerjakan |
+| # | Area | Kondisi Saat Ini | Yang Masih Perlu Dikerjakan |
+|---|---|---|---|
+| 1 | Autentikasi JWT (Bearer) | ✅ Register / login / `GET /me` — token di `localStorage`, header `Authorization` | Lihat **§7.6** (migrasi session cookie) sebelum produksi publik |
+| 2 | Session token storage | Token JWT di `localStorage` (`trading-dashboard-token`) — rentan XSS | Migrasi ke **httpOnly cookie** — requirement & langkah di **§7.6** |
+| 3 | Watchlist per-user | `localStorage` browser (per-device, bukan per-akun) | Pindahkan ke database (Supabase), terikat ke `user_id`, lihat §8 |
+| 4 | Caching lintas-instance | `ttl_cache` in-memory, hanya berlaku untuk 1 proses backend | Kalau backend di-scale ke banyak instance/container, pindah ke Redis supaya cache konsisten |
+| 5 | Rate-limiting | ✅ `slowapi` 30/menit per IP pada search, chart, watchlist POST, news (+ auth login/register) | Sesuaikan angka limit berdasarkan traffic nyata; pertimbangkan limit per-user setelah auth full |
+| 6 | Sumber data harga | Masih `yfinance` (endpoint tidak resmi) | Evaluasi API berbayar sebelum scale ke banyak user simultan |
+| 7 | Real-time push | Polling SWR tiap 30 detik (bukan WebSocket) | Kalau butuh update lebih instan, pertimbangkan WebSocket/SSE di backend |
+| 8 | `app/core/` & `app/models/` (folder lama di root) | Placeholder, tidak lagi relevan | Folder baru `backend/app/core/` dan `backend/app/models/` yang dipakai sekarang |
+
+### 7.6 Next Step — Migrasi JWT `localStorage` → httpOnly Cookie
+
+> **Prioritas:** Tinggi (blocker soft untuk onboarding user publik / berbayar).  
+> **Prasyarat:** JWT Auth dasar sudah ✅ (`PRD2/Enhancement-System/enhancement-system_JWTAuth.md`).  
+> **Referensi UI notes:** teks di `AuthCard` (“Token disimpan di localStorage…”) dihapus **hanya setelah** migrasi ini selesai.
+
+#### Mengapa
+
+- `localStorage` bisa dibaca JavaScript → XSS dapat mencuri JWT.
+- Cookie `HttpOnly` + `Secure` + `SameSite` tidak bisa dibaca dari JS; browser mengirim cookie otomatis ke API same-site / CORS ber-credentials.
+
+#### Requirement
+
+| ID | Requirement | Detail |
 |---|---|---|
-| Autentikasi | **Tidak ada** — semua endpoint backend terbuka tanpa proteksi | Tambah JWT/session auth sebelum deploy publik |
-| Watchlist per-user | `localStorage` browser (per-device, bukan per-akun) | Pindahkan ke database (Supabase), terikat ke `user_id`, lihat §8 |
-| Caching lintas-instance | `ttl_cache` in-memory, hanya berlaku untuk 1 proses backend | Kalau backend di-scale ke banyak instance/container, pindah ke Redis supaya cache konsisten |
-| Rate-limiting | Tidak ada proteksi eksplisit di endpoint API | Tambah throttle/queue, terutama untuk `/api/market/search` dan `/api/chart/*` yang paling sering dipanggil |
-| Sumber data harga | Masih `yfinance` (endpoint tidak resmi) | Evaluasi API berbayar sebelum scale ke banyak user simultan |
-| Real-time push | Polling SWR tiap 30 detik (bukan WebSocket) | Kalau butuh update lebih instan, pertimbangkan WebSocket/SSE di backend |
-| `app/core/` & `app/models/` (folder lama di root) | Placeholder, tidak lagi relevan | Folder baru `backend/app/core/` dan `backend/app/models/` yang dipakai sekarang |
+| C-1 | Set cookie di login | `POST /api/auth/login` set cookie session (mis. `access_token`) dengan `HttpOnly`, `Secure` (prod), `SameSite=Strict` atau `Lax`, `Path=/`, `Max-Age` selaras `JWT_EXPIRE_MINUTES` |
+| C-2 | Set cookie setelah register | Setelah register + auto-login (atau redirect login), cookie sama seperti C-1 |
+| C-3 | Baca session dari cookie | `get_current_user()` menerima token dari cookie **atau** (sementara) header Bearer — dual-support opsional selama masa transisi |
+| C-4 | Logout server-side | Endpoint `POST /api/auth/logout` menghapus cookie (`Set-Cookie` expired / `max-age=0`) |
+| C-5 | Frontend credentials | `fetch` ke API auth/`/me` memakai `credentials: 'include'`; **hapus** baca/tulis `trading-dashboard-token` di `localStorage` |
+| C-6 | CORS credentials | `allow_credentials=True` sudah ada; pastikan `CORS_ORIGINS` eksplisit (bukan `*`) — sudah sesuai |
+| C-7 | CSRF mitigation | Karena cookie otomatis terkirim: pakai `SameSite=Strict`/`Lax`, dan/atau CSRF token double-submit untuk method state-changing; dokumentasikan pilihan yang dipakai |
+| C-8 | Swagger / testing | Update cara uji di `README-Tahap2.md` (cookie jar / browser login), bukan hanya Authorize Bearer |
+| C-9 | Docs & UI copy | Hapus notes localStorage di `AuthCard`; centang item #2 di §7.5; update `enhancement-system_JWTAuth.md` §5 |
+
+#### Checklist implementasi (urutan disarankan)
+
+- [ ] Backend: helper set/clear auth cookie (flags environment-aware: `Secure` hanya di non-local)
+- [ ] Backend: `login` / `register` set cookie; response boleh tetap return `user` (tanpa wajib kirim `access_token` ke body — atau deprecate field token di JSON)
+- [ ] Backend: `POST /api/auth/logout` + clear cookie
+- [ ] Backend: `deps.get_current_user` baca cookie dulu, fallback Bearer (transisi)
+- [ ] Frontend: `fetchJson` → `credentials: 'include'` untuk auth; hapus `getStoredToken` / `setStoredToken`
+- [ ] Frontend: `AuthCard` & `AppSidebarNav` logout panggil `POST /api/auth/logout` lalu redirect `/login`
+- [ ] Verifikasi: login → `/me` tanpa header manual; logout → `/me` 401; XSS-simulasi tidak bisa `localStorage.getItem('trading-dashboard-token')`
+- [ ] Update §7.5 baris #2 → ✅; update PRD §4.2 status auth session storage
+
+#### Definition of Done
+
+1. Tidak ada JWT auth di `localStorage`.
+2. Session bertahan lewat cookie httpOnly; logout membersihkan cookie.
+3. Notes UI + dokumen §7.5/#2 dan JWTAuth §5 sudah mencerminkan status selesai.
 
 ---
 

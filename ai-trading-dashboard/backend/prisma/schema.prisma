@@ -26,6 +26,7 @@ model User {
 }
 
 enum Role {
+  SYSTEM_ADMIN
   ADMIN
   MEMBER
 }

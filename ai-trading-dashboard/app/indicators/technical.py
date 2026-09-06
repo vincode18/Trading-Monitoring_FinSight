@@ -2,8 +2,13 @@
 Indikator teknikal dasar, dihitung manual dengan pandas (tanpa TA-Lib
 supaya instalasi tetap ringan/portable). Semua fungsi menerima dan
 mengembalikan pandas Series/DataFrame agar mudah dipakai di Plotly.
+
+Catatan kepatuhan: skor analisis / label (Strong Buy, dll.) adalah ringkasan
+teknikal otomatis — BUKAN saran atau rekomendasi finansial.
 """
 from __future__ import annotations
+
+import math
 
 import pandas as pd
 
@@ -62,6 +67,8 @@ def add_all_indicators(df: pd.DataFrame) -> pd.DataFrame:
     out = df.copy()
     out["MA20"] = moving_average(out["Close"], 20)
     out["MA50"] = moving_average(out["Close"], 50)
+    out["MA100"] = moving_average(out["Close"], 100)
+    out["MA200"] = moving_average(out["Close"], 200)
     out["EMA12"] = ema(out["Close"], 12)
     out["EMA26"] = ema(out["Close"], 26)
     out["RSI14"] = rsi(out["Close"], 14)
@@ -109,3 +116,230 @@ def simple_signal(df_with_indicators: pd.DataFrame) -> str:
             signals.append("MA20 di bawah MA50 (tren jangka pendek turun)")
 
     return " | ".join(signals) if signals else "Netral / data indikator belum lengkap"
+
+
+def _clamp(value: float, low: float = 0.0, high: float = 100.0) -> float:
+    return max(low, min(high, value))
+
+
+def _safe_float(value) -> float | None:
+    try:
+        if value is None or (isinstance(value, float) and math.isnan(value)):
+            return None
+        if pd.isna(value):
+            return None
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _score_to_label(score: float) -> str:
+    if score >= 80:
+        return "Strong Buy"
+    if score >= 60:
+        return "Buy"
+    if score >= 40:
+        return "Neutral"
+    if score >= 20:
+        return "Sell"
+    return "Strong Sell"
+
+
+def compute_analysis_score(df: pd.DataFrame) -> dict:
+    """
+    Skor teknikal 0–100 dari RSI, MACD vs signal, dan MA20 vs MA50 (bobot setara).
+
+    BUKAN saran finansial — hanya ringkasan kondisi indikator untuk edukasi/UI.
+    """
+    empty = {
+        "score": 50.0,
+        "label": "Neutral",
+        "indicators": [],
+        "disclaimer": "Not financial advice. Technical summary only.",
+    }
+    if df is None or df.empty:
+        return empty
+
+    last = df.iloc[-1]
+    component_scores: list[float] = []
+    indicators: list[dict] = []
+
+    # RSI14: rendah = lebih bullish (oversold), tinggi = lebih bearish
+    rsi_val = _safe_float(last.get("RSI14"))
+    if rsi_val is not None:
+        rsi_score = _clamp(100.0 - rsi_val)
+        component_scores.append(rsi_score)
+        if rsi_val < 30:
+            rsi_signal = "Buy"
+        elif rsi_val > 70:
+            rsi_signal = "Sell"
+        else:
+            rsi_signal = "Neutral"
+        indicators.append({"name": "RSI14", "value": round(rsi_val, 4), "signal": rsi_signal})
+
+    # MACD vs signal line
+    macd_val = _safe_float(last.get("MACD"))
+    macd_sig = _safe_float(last.get("MACD_Signal"))
+    if macd_val is not None and macd_sig is not None:
+        hist = macd_val - macd_sig
+        # Skala kasar: hist relatif terhadap |MACD| + epsilon
+        scale = abs(macd_val) + abs(macd_sig) + 1e-9
+        macd_score = _clamp(50.0 + (hist / scale) * 50.0)
+        component_scores.append(macd_score)
+        macd_signal = "Buy" if macd_val > macd_sig else ("Sell" if macd_val < macd_sig else "Neutral")
+        indicators.append({"name": "MACD", "value": round(macd_val, 6), "signal": macd_signal})
+
+    # MA20 vs MA50
+    ma20 = _safe_float(last.get("MA20"))
+    ma50 = _safe_float(last.get("MA50"))
+    if ma20 is not None and ma50 is not None:
+        diff_pct = ((ma20 - ma50) / abs(ma50)) * 100 if ma50 else 0.0
+        ma_score = _clamp(50.0 + diff_pct * 10.0)
+        component_scores.append(ma_score)
+        if ma20 > ma50:
+            ma_signal = "Buy"
+        elif ma20 < ma50:
+            ma_signal = "Sell"
+        else:
+            ma_signal = "Neutral"
+        indicators.append({"name": "MA20", "value": round(ma20, 4), "signal": ma_signal})
+        indicators.append({"name": "MA50", "value": round(ma50, 4), "signal": ma_signal})
+
+    if not component_scores:
+        return empty
+
+    score = round(sum(component_scores) / len(component_scores), 2)
+    return {
+        "score": score,
+        "label": _score_to_label(score),
+        "indicators": indicators,
+        "disclaimer": "Not financial advice. Technical summary only.",
+    }
+
+
+def compute_radar_scores(df: pd.DataFrame) -> dict:
+    """
+    Lima skor 0–100 untuk radar chart: price_action, volume, momentum, trend, volatility.
+    Menggunakan OHLCV + indikator yang sudah dihitung (MA, RSI).
+    """
+    defaults = {
+        "price_action": 50.0,
+        "volume": 50.0,
+        "momentum": 50.0,
+        "trend": 50.0,
+        "volatility": 50.0,
+    }
+    if df is None or df.empty or len(df) < 5:
+        return defaults
+
+    close = df["Close"].astype(float)
+    last_close = float(close.iloc[-1])
+
+    # Price action: posisi close vs MA20 (atau MA50 fallback)
+    ma_ref = None
+    if "MA20" in df.columns and pd.notna(df["MA20"].iloc[-1]):
+        ma_ref = float(df["MA20"].iloc[-1])
+    elif "MA50" in df.columns and pd.notna(df["MA50"].iloc[-1]):
+        ma_ref = float(df["MA50"].iloc[-1])
+    if ma_ref and ma_ref != 0:
+        pct = ((last_close - ma_ref) / abs(ma_ref)) * 100
+        price_action = _clamp(50.0 + pct * 5.0)
+    else:
+        price_action = 50.0
+
+    # Volume: volume terbaru vs rata-rata 20 hari
+    if "Volume" in df.columns:
+        vol = df["Volume"].astype(float)
+        recent_vol = float(vol.iloc[-1])
+        avg_vol = float(vol.tail(20).mean()) if len(vol) >= 2 else recent_vol
+        if avg_vol > 0:
+            volume = _clamp((recent_vol / avg_vol) * 50.0)
+        else:
+            volume = 50.0
+    else:
+        volume = 50.0
+
+    # Momentum: dari RSI (50 netral → skala 0–100 langsung)
+    if "RSI14" in df.columns and pd.notna(df["RSI14"].iloc[-1]):
+        momentum = _clamp(float(df["RSI14"].iloc[-1]))
+    else:
+        # fallback: return 10 hari
+        ret = close.pct_change().tail(10).mean()
+        momentum = _clamp(50.0 + float(ret or 0) * 1000)
+
+    # Trend: kemiringan MA20 (atau close) 10 bar terakhir
+    if "MA20" in df.columns and df["MA20"].notna().sum() >= 10:
+        ma_series = df["MA20"].dropna()
+        slope = (float(ma_series.iloc[-1]) - float(ma_series.iloc[-10])) / abs(float(ma_series.iloc[-10]) or 1e-9)
+        trend = _clamp(50.0 + slope * 500)
+    else:
+        slope = (last_close - float(close.iloc[-10])) / abs(float(close.iloc[-10]) or 1e-9) if len(close) >= 10 else 0.0
+        trend = _clamp(50.0 + slope * 500)
+
+    # Volatility: stdev return 20 hari, dinormalisasi (tinggi = skor tinggi)
+    returns = close.pct_change().dropna().tail(20)
+    if len(returns) >= 5:
+        vol_stdev = float(returns.std())
+        # ~2% harian stdev ≈ skor tinggi; skala kasar
+        volatility = _clamp(vol_stdev * 2500)
+    else:
+        volatility = 50.0
+
+    return {
+        "price_action": round(price_action, 2),
+        "volume": round(volume, 2),
+        "momentum": round(momentum, 2),
+        "trend": round(trend, 2),
+        "volatility": round(volatility, 2),
+    }
+
+
+def compute_support_resistance(df: pd.DataFrame, lookback: int = 60) -> dict:
+    """
+    Estimasi 2 level support & 2 resistance dari local min/max Low/High
+    pada jendela `lookback` bar terakhir.
+    """
+    empty = {"support": [None, None], "resistance": [None, None]}
+    if df is None or df.empty or "Low" not in df.columns or "High" not in df.columns:
+        return empty
+
+    recent = df.tail(lookback).copy()
+    if len(recent) < 3:
+        return empty
+
+    lows = recent["Low"].astype(float).tolist()
+    highs = recent["High"].astype(float).tolist()
+    close = float(recent["Close"].astype(float).iloc[-1])
+
+    local_mins: list[float] = []
+    local_maxs: list[float] = []
+    for i in range(1, len(lows) - 1):
+        if lows[i] <= lows[i - 1] and lows[i] <= lows[i + 1]:
+            local_mins.append(lows[i])
+        if highs[i] >= highs[i - 1] and highs[i] >= highs[i + 1]:
+            local_maxs.append(highs[i])
+
+    supports_below = sorted({s for s in local_mins if s < close}, reverse=True)
+    resistances_above = sorted({r for r in local_maxs if r > close})
+
+    # Fallback: pakai ekstrem absolut di jendela jika local extrema kurang
+    if len(supports_below) < 2:
+        sorted_lows = sorted(set(lows))
+        for lv in sorted_lows:
+            if lv < close and lv not in supports_below:
+                supports_below.append(lv)
+        supports_below = sorted(supports_below, reverse=True)
+
+    if len(resistances_above) < 2:
+        sorted_highs = sorted(set(highs), reverse=True)
+        for hv in sorted_highs:
+            if hv > close and hv not in resistances_above:
+                resistances_above.append(hv)
+        resistances_above = sorted(resistances_above)
+
+    s1 = round(supports_below[0], 6) if len(supports_below) > 0 else None
+    s2 = round(supports_below[1], 6) if len(supports_below) > 1 else None
+    r1 = round(resistances_above[0], 6) if len(resistances_above) > 0 else None
+    r2 = round(resistances_above[1], 6) if len(resistances_above) > 1 else None
+
+    return {"support": [s1, s2], "resistance": [r1, r2]}

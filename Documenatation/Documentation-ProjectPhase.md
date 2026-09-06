@@ -36,7 +36,8 @@ dan komunikasi (REST JSON, bukan re-render script Streamlit).
 ## 3. Belum Selesai (Roadmap Lanjutan)
 
 - [x] Database Supabase + Prisma (`users`, `watchlist_items`, `subscriptions`, `payments`) — lihat `Environment/Enhancement-system-setup_DatabaseSupabase.md`
-- [ ] Autentikasi JWT (register/login)
+- [x] UI redesign multi-page (Landing, Onboarding, Auth shell, Dashboard, Watchlist, Chart, News, Analysis) — lihat `PRD/PRD-Design/`
+- [ ] Autentikasi JWT (register/login) — wiring ke form Auth shell
 - [ ] Watchlist per-user di database (ganti `localStorage`)
 - [ ] Rate-limiting API
 - [ ] Deploy cloud (VPS / Railway / Render)

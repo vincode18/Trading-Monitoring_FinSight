@@ -110,11 +110,31 @@ sesuai `Documentation-Program.md` §8 dan §7.
   (`chart.addCandlestickSeries()` vs `chart.addSeries(CandlestickSeries)`
   di v5). Kalau nanti upgrade ke v5, seluruh `components/CandlestickChart.tsx`
   perlu disesuaikan API call-nya.
-- Auth belum ada — endpoint backend saat ini **terbuka tanpa proteksi**.
-  Jangan deploy ke publik sebelum JWT/auth middleware ditambahkan (lihat
-  roadmap Tahap 2 di `PRD.md`).
+- Auth JWT tersedia — `POST /api/auth/register`, `POST /api/auth/login`,
+  `GET /api/auth/me`. Endpoint market/chart/news tetap publik (read-only).
+  Detail & batasan: `PRD2/Enhancement-System/enhancement-system_JWTAuth.md`.
+- Rate limit 30/menit per IP pada search, chart, watchlist POST, dan news.
+- CORS: hanya `GET`/`POST` + header `Content-Type` / `Authorization`.
+
+### Testing Auth di Swagger UI
+
+1. Jalankan backend: `uvicorn app.main:app --reload --port 8000`
+2. Buka http://localhost:8000/docs
+3. `POST /api/auth/login` dengan body JSON, misalnya akun seed:
+   `{"email":"member@tradingmonitor.local","password":"Member@2026"}`
+4. Salin `access_token` dari response
+5. Klik **Authorize** (gembok) di atas kanan Swagger → isi
+   `Bearer <access_token>` (atau hanya token, tergantung UI; skema = HTTPBearer)
+6. Coba `GET /api/auth/me` — harus mengembalikan profil user
 
 ## Langkah Selanjutnya
 
-Lihat `Documentation-Program.md` §7 dan §8 untuk detail migrasi database
-(Supabase + Prisma) dan area yang perlu di-refactor sebelum production.
+Urutan prioritas yang disarankan:
+
+1. **§7.6 — Migrasi httpOnly cookie** (`PRD/Documentation-Program.md`) — ganti penyimpanan JWT
+   dari `localStorage` ke cookie session + `POST /api/auth/logout`.
+2. **Watchlist per-user** — simpan ke Supabase terikat `user_id` (`Documentation-Program.md` §8).
+3. Hosting cloud + hardening production (`CORS_ORIGINS` domain asli, secret rotation).
+
+Detail requirement cookie: `Documentation-Program.md` §7.6 (C-1…C-9).  
+Ringkasan enhancement JWT yang sudah selesai: `PRD2/Enhancement-System/enhancement-system_JWTAuth.md`.
