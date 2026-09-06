@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import { AuthUser, api, getStoredToken, setStoredToken } from '@/lib/api';
+import { AuthUser, api } from '@/lib/api';
 
 const NAV = [
   { href: '/dashboard', label: 'Dashboard' },
@@ -19,7 +19,7 @@ const NAV = [
 
 function initials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return 'TM';
+  if (parts.length === 0) return 'FS';
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
 }
@@ -30,10 +30,6 @@ export function AppSidebarNav() {
   const [user, setUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
-    if (!getStoredToken()) {
-      setUser(null);
-      return;
-    }
     let cancelled = false;
     api
       .me()
@@ -41,18 +37,19 @@ export function AppSidebarNav() {
         if (!cancelled) setUser(me);
       })
       .catch(() => {
-        if (!cancelled) {
-          setStoredToken(null);
-          setUser(null);
-        }
+        if (!cancelled) setUser(null);
       });
     return () => {
       cancelled = true;
     };
   }, [pathname]);
 
-  function logout() {
-    setStoredToken(null);
+  async function logout() {
+    try {
+      await api.logout();
+    } catch {
+      /* clear client state anyway */
+    }
     setUser(null);
     router.push('/login');
   }
@@ -64,7 +61,7 @@ export function AppSidebarNav() {
     <aside className="flex h-full w-56 shrink-0 flex-col border-r border-border bg-panel">
       <div className="border-b border-border px-4 py-4">
         <Link href="/dashboard" className="block">
-          <div className="text-sm font-bold tracking-tight text-text-primary">Trading Monitor</div>
+          <div className="text-sm font-bold tracking-tight text-text-primary">FinSight</div>
           <div className="mt-0.5 text-xs text-text-muted">AI Research Terminal</div>
         </Link>
       </div>

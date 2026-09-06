@@ -71,7 +71,7 @@ trading, bukan tampilan konsumen yang lapang:
 | Border | `#2A313C` |
 | Aksen positif (naik) | `#00E676` |
 | Aksen negatif (turun) | `#FF5252` |
-| Font UI | Inter |
+| Font UI | Jakarta Sans |
 | Font angka/data | JetBrains Mono |
 
 Chart candlestick pakai **`lightweight-charts`** — library sumber terbuka dari
@@ -110,31 +110,31 @@ sesuai `Documentation-Program.md` §8 dan §7.
   (`chart.addCandlestickSeries()` vs `chart.addSeries(CandlestickSeries)`
   di v5). Kalau nanti upgrade ke v5, seluruh `components/CandlestickChart.tsx`
   perlu disesuaikan API call-nya.
-- Auth JWT tersedia — `POST /api/auth/register`, `POST /api/auth/login`,
-  `GET /api/auth/me`. Endpoint market/chart/news tetap publik (read-only).
-  Detail & batasan: `PRD2/Enhancement-System/enhancement-system_JWTAuth.md`.
+- Auth JWT + **httpOnly cookie session** — `POST /api/auth/register|login|logout`,
+  `GET /api/auth/me`. Frontend memakai `credentials: 'include'` (bukan `localStorage` token).
+  Endpoint market/chart/news tetap publik (read-only).
+- Watchlist per-akun — `GET/PUT/POST/DELETE /api/user/watchlist` (butuh login).
+  Guest masih pakai localStorage sebagai fallback.
 - Rate limit 30/menit per IP pada search, chart, watchlist POST, dan news.
-- CORS: hanya `GET`/`POST` + header `Content-Type` / `Authorization`.
+- CORS: `GET`/`POST`/`PUT`/`DELETE` + header `Content-Type` / `Authorization` + credentials.
 
-### Testing Auth di Swagger UI
+### Testing Auth
+
+**Browser (disarankan):** login di http://localhost:3000/login — cookie diset otomatis;
+buka DevTools → Application → Cookies → `access_token` (HttpOnly).
+
+**Swagger (fallback Bearer):**
 
 1. Jalankan backend: `uvicorn app.main:app --reload --port 8000`
 2. Buka http://localhost:8000/docs
-3. `POST /api/auth/login` dengan body JSON, misalnya akun seed:
-   `{"email":"member@tradingmonitor.local","password":"Member@2026"}`
-4. Salin `access_token` dari response
-5. Klik **Authorize** (gembok) di atas kanan Swagger → isi
-   `Bearer <access_token>` (atau hanya token, tergantung UI; skema = HTTPBearer)
-6. Coba `GET /api/auth/me` — harus mengembalikan profil user
+3. `POST /api/auth/login` → salin `access_token`
+4. **Authorize** → `Bearer <access_token>`
+5. Coba `GET /api/auth/me` dan `GET /api/user/watchlist`
 
 ## Langkah Selanjutnya
 
-Urutan prioritas yang disarankan:
+1. Production hardening (`CORS_ORIGINS` domain asli, HTTPS/`Secure` cookie, secret rotation).
+2. *(Opsional)* Verifikasi email; migrasi meta kategori watchlist ke DB.
+3. Hosting cloud.
 
-1. **§7.6 — Migrasi httpOnly cookie** (`PRD/Documentation-Program.md`) — ganti penyimpanan JWT
-   dari `localStorage` ke cookie session + `POST /api/auth/logout`.
-2. **Watchlist per-user** — simpan ke Supabase terikat `user_id` (`Documentation-Program.md` §8).
-3. Hosting cloud + hardening production (`CORS_ORIGINS` domain asli, secret rotation).
-
-Detail requirement cookie: `Documentation-Program.md` §7.6 (C-1…C-9).  
-Ringkasan enhancement JWT yang sudah selesai: `PRD2/Enhancement-System/enhancement-system_JWTAuth.md`.
+Detail: `Documenatation/Documentation-Program.md` §7.6–§7.7.

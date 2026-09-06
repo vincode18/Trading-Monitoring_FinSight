@@ -11,7 +11,6 @@ import {
 } from '@/types/market';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-const TOKEN_KEY = 'trading-dashboard-token';
 
 export interface AuthUser {
   id: string;
@@ -27,6 +26,10 @@ export interface TokenResponse {
   user: AuthUser | null;
 }
 
+export interface WatchlistSymbols {
+  symbols: string[];
+}
+
 class ApiError extends Error {
   constructor(message: string, public status: number) {
     super(message);
@@ -34,35 +37,16 @@ class ApiError extends Error {
   }
 }
 
-export function getStoredToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem(TOKEN_KEY);
-}
-
-export function setStoredToken(token: string | null) {
-  if (typeof window === 'undefined') return;
-  if (token) localStorage.setItem(TOKEN_KEY, token);
-  else localStorage.removeItem(TOKEN_KEY);
-}
-
-async function fetchJson<T>(
-  path: string,
-  init?: RequestInit & { auth?: boolean }
-): Promise<T> {
+async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(init?.headers as Record<string, string> | undefined),
   };
 
-  if (init?.auth) {
-    const token = getStoredToken();
-    if (token) headers.Authorization = `Bearer ${token}`;
-  }
-
-  const { auth: _auth, ...rest } = init || {};
   const res = await fetch(`${API_BASE_URL}${path}`, {
-    ...rest,
+    ...init,
     headers,
+    credentials: 'include',
   });
 
   if (!res.ok) {
@@ -76,12 +60,13 @@ async function fetchJson<T>(
     throw new ApiError(detail || `Request gagal (${res.status})`, res.status);
   }
 
+  if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
 }
 
 export const api = {
   register: (email: string, name: string, password: string) =>
-    fetchJson<AuthUser>('/api/auth/register', {
+    fetchJson<TokenResponse>('/api/auth/register', {
       method: 'POST',
       body: JSON.stringify({ email, name, password }),
     }),
@@ -92,7 +77,28 @@ export const api = {
       body: JSON.stringify({ email, password }),
     }),
 
-  me: () => fetchJson<AuthUser>('/api/auth/me', { auth: true }),
+  logout: () => fetchJson<{ ok: boolean }>('/api/auth/logout', { method: 'POST' }),
+
+  me: () => fetchJson<AuthUser>('/api/auth/me'),
+
+  getUserWatchlist: () => fetchJson<WatchlistSymbols>('/api/user/watchlist'),
+
+  replaceUserWatchlist: (symbols: string[]) =>
+    fetchJson<WatchlistSymbols>('/api/user/watchlist', {
+      method: 'PUT',
+      body: JSON.stringify({ symbols }),
+    }),
+
+  addUserWatchlistSymbol: (symbol: string) =>
+    fetchJson<WatchlistSymbols>('/api/user/watchlist', {
+      method: 'POST',
+      body: JSON.stringify({ symbol }),
+    }),
+
+  removeUserWatchlistSymbol: (symbol: string) =>
+    fetchJson<WatchlistSymbols>(`/api/user/watchlist/${encodeURIComponent(symbol)}`, {
+      method: 'DELETE',
+    }),
 
   getQuote: (symbol: string) => fetchJson<QuoteSnapshot>(`/api/market/quote/${symbol}`),
 

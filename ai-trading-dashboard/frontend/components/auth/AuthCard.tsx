@@ -4,11 +4,14 @@ import Link from 'next/link';
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { ApiError, api, setStoredToken } from '@/lib/api';
+import { ApiError, api } from '@/lib/api';
 
 interface AuthCardProps {
   mode: 'login' | 'signup';
 }
+
+const inputClass =
+  'w-full rounded-md border border-border bg-canvas px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted disabled:opacity-60';
 
 export function AuthCard({ mode }: AuthCardProps) {
   const router = useRouter();
@@ -19,6 +22,8 @@ export function AuthCard({ mode }: AuthCardProps) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const minPassword = mode === 'signup' ? 8 : 6;
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');
@@ -26,8 +31,8 @@ export function AuthCard({ mode }: AuthCardProps) {
       setError('Format email tidak valid.');
       return;
     }
-    if (password.length < 6) {
-      setError('Password minimal 6 karakter.');
+    if (password.length < minPassword) {
+      setError(`Password minimal ${minPassword} karakter.`);
       return;
     }
     if (mode === 'signup') {
@@ -45,11 +50,8 @@ export function AuthCard({ mode }: AuthCardProps) {
     try {
       if (mode === 'signup') {
         await api.register(email.trim(), name.trim(), password);
-        const tokenRes = await api.login(email.trim(), password);
-        setStoredToken(tokenRes.access_token);
       } else {
-        const tokenRes = await api.login(email.trim(), password);
-        setStoredToken(tokenRes.access_token);
+        await api.login(email.trim(), password);
       }
       router.push('/dashboard');
     } catch (err) {
@@ -64,13 +66,13 @@ export function AuthCard({ mode }: AuthCardProps) {
   }
 
   return (
-    <div className="w-full max-w-md rounded-md border border-border bg-panel p-6 shadow-panel">
+    <div className="w-full max-w-md">
       <h1 className="text-h1 text-text-primary">
-        {mode === 'login' ? 'Welcome back' : 'Create account'}
+        {mode === 'login' ? 'Selamat Datang Kembali' : 'Buat Akun Baru'}
       </h1>
       <p className="mt-1 text-sm text-text-secondary">
         {mode === 'login'
-          ? 'Masuk untuk menyimpan watchlist dan preferensi.'
+          ? 'Masuk untuk melanjutkan pemantauan pasar Anda.'
           : 'Mulai riset pasar dengan akun gratis.'}
       </p>
 
@@ -82,7 +84,7 @@ export function AuthCard({ mode }: AuthCardProps) {
             placeholder="Nama lengkap"
             autoComplete="name"
             disabled={loading}
-            className="w-full rounded border border-border bg-canvas px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted"
+            className={inputClass}
           />
         )}
         <input
@@ -92,17 +94,22 @@ export function AuthCard({ mode }: AuthCardProps) {
           placeholder="Email"
           autoComplete="email"
           disabled={loading}
-          className="w-full rounded border border-border bg-canvas px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted"
+          className={inputClass}
         />
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-          autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-          disabled={loading}
-          className="w-full rounded border border-border bg-canvas px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted"
-        />
+        <div>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+            disabled={loading}
+            className={inputClass}
+          />
+          {mode === 'signup' && (
+            <p className="mt-1.5 text-[10px] text-text-muted">Minimal 8 karakter</p>
+          )}
+        </div>
         {mode === 'signup' && (
           <input
             type="password"
@@ -111,16 +118,16 @@ export function AuthCard({ mode }: AuthCardProps) {
             placeholder="Konfirmasi password"
             autoComplete="new-password"
             disabled={loading}
-            className="w-full rounded border border-border bg-canvas px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted"
+            className={inputClass}
           />
         )}
         {error && <p className="text-xs text-negative">{error}</p>}
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded bg-action-primary py-2.5 text-sm font-semibold text-canvas hover:bg-white/90 disabled:opacity-60"
+          className="w-full rounded-md bg-action-primary py-2.5 text-sm font-semibold text-canvas hover:bg-white/90 disabled:opacity-60"
         >
-          {loading ? 'Memproses…' : mode === 'login' ? 'Log In' : 'Sign Up'}
+          {loading ? 'Memproses…' : mode === 'login' ? 'Masuk' : 'Daftar'}
         </button>
       </form>
 
@@ -129,20 +136,17 @@ export function AuthCard({ mode }: AuthCardProps) {
           <>
             Belum punya akun?{' '}
             <Link href="/signup" className="text-positive hover:underline">
-              Sign Up
+              Daftar
             </Link>
           </>
         ) : (
           <>
             Sudah punya akun?{' '}
             <Link href="/login" className="text-positive hover:underline">
-              Log In
+              Masuk
             </Link>
           </>
         )}
-      </p>
-      <p className="mt-3 text-center text-[10px] text-text-muted">
-        Token disimpan di localStorage (batasan sementara sebelum httpOnly cookie).
       </p>
     </div>
   );

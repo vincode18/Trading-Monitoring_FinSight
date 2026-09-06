@@ -17,7 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
-from app.api import analysis, auth, chart, market, news
+from app.api import analysis, auth, chart, market, news, user_watchlist
 from app.config.settings import settings
 from app.core.db import connect_db, disconnect_db
 from app.core.rate_limit import limiter
@@ -54,11 +54,12 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["Content-Type", "Authorization"],
 )
 
 app.include_router(auth.router)
+app.include_router(user_watchlist.router)
 app.include_router(market.router)
 app.include_router(chart.router)
 app.include_router(news.router)

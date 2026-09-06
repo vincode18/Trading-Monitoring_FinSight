@@ -7,8 +7,9 @@
 > **Dokumen sebelumnya:** v1.1 (lampiran pengguna, tidak disimpan di repo) — lihat §0 Changelog
 > **Referensi visual:** Mockup "Trading Monitor" (dark login), referensi struktur split-layout
 > auth, referensi struktur informasi landing page fintech
-> **Status:** 🔜 Diusulkan — belum diimplementasikan
+> **Status:** ✅ Diimplementasikan (frontend UI v2.0)
 > **Terakhir Diperbarui:** 6 September 2026
+> **Implementasi:** frontend/ — onboarding, landing, login/signup + token design system §2
 > **Audiens:** Frontend Developer, Desainer
 
 > ℹ️ **Catatan Rebrand:** Nama produk resmi adalah **FinSight**. Nama "Trading Monitor" yang

@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Trading Monitor — AI Research Terminal',
+  title: 'FinSight — AI Research Terminal',
   description:
-    'Monitor market, analyze smarter. Watchlist, candlestick charts, technical indicators, and news.',
+    'Pantau pasar, analisis teknikal, dan berita — alat bantu riset untuk trader ritel Indonesia.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

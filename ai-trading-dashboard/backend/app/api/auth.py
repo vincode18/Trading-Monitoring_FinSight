@@ -1,12 +1,11 @@
-"""Auth endpoints: register, login, me."""
-from typing import Optional
-
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+"""Auth endpoints: register, login, logout, me — session via httpOnly cookie."""
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from prisma.enums import Role
 from prisma.models import User
 
 from app.api.schemas import LoginRequest, RegisterRequest, TokenResponse, UserResponse
 from app.config.settings import settings
+from app.core.cookies import clear_auth_cookie, set_auth_cookie
 from app.core.db import db
 from app.core.deps import get_current_user
 from app.core.rate_limit import DEFAULT_LIMIT, limiter
@@ -24,9 +23,22 @@ def _to_user_response(user: User) -> UserResponse:
     )
 
 
-@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+def _issue_token_response(user: User, response: Response) -> TokenResponse:
+    token = create_access_token(
+        {"sub": user.id, "role": str(user.role), "email": user.email}
+    )
+    set_auth_cookie(response, token)
+    return TokenResponse(
+        access_token=token,
+        token_type="bearer",
+        expires_in=settings.JWT_EXPIRE_MINUTES * 60,
+        user=_to_user_response(user),
+    )
+
+
+@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 @limiter.limit(DEFAULT_LIMIT)
-async def register(request: Request, payload: RegisterRequest):
+async def register(request: Request, payload: RegisterRequest, response: Response):
     if not db.is_connected():
         raise HTTPException(status_code=503, detail="Database belum terhubung")
 
@@ -46,12 +58,12 @@ async def register(request: Request, payload: RegisterRequest):
             "role": Role.MEMBER,
         }
     )
-    return _to_user_response(user)
+    return _issue_token_response(user, response)
 
 
 @router.post("/login", response_model=TokenResponse)
 @limiter.limit(DEFAULT_LIMIT)
-async def login(request: Request, payload: LoginRequest):
+async def login(request: Request, payload: LoginRequest, response: Response):
     if not db.is_connected():
         raise HTTPException(status_code=503, detail="Database belum terhubung")
 
@@ -60,15 +72,13 @@ async def login(request: Request, payload: LoginRequest):
     if user is None or not verify_password(payload.password, user.passwordHash):
         raise HTTPException(status_code=401, detail="Email atau password salah")
 
-    token = create_access_token(
-        {"sub": user.id, "role": str(user.role), "email": user.email}
-    )
-    return TokenResponse(
-        access_token=token,
-        token_type="bearer",
-        expires_in=settings.JWT_EXPIRE_MINUTES * 60,
-        user=_to_user_response(user),
-    )
+    return _issue_token_response(user, response)
+
+
+@router.post("/logout")
+async def logout(response: Response):
+    clear_auth_cookie(response)
+    return {"ok": True}
 
 
 @router.get("/me", response_model=UserResponse)

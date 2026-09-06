@@ -105,7 +105,7 @@ export default function ChartPage() {
       )}
 
       <p className="text-[10px] text-text-muted">
-        Charting by TradingView Lightweight Charts. Bukan nasihat keuangan.
+        Charting by TradingView Lightweight Charts.
       </p>
     </div>
   );

@@ -495,9 +495,9 @@ Implementasi Tahap 2 ini **baru mengganti arsitektur presentasi**, bukan menyele
 
 | # | Area | Kondisi Saat Ini | Yang Masih Perlu Dikerjakan |
 |---|---|---|---|
-| 1 | Autentikasi JWT (Bearer) | ✅ Register / login / `GET /me` — token di `localStorage`, header `Authorization` | Lihat **§7.6** (migrasi session cookie) sebelum produksi publik |
-| 2 | Session token storage | Token JWT di `localStorage` (`trading-dashboard-token`) — rentan XSS | Migrasi ke **httpOnly cookie** — requirement & langkah di **§7.6** |
-| 3 | Watchlist per-user | `localStorage` browser (per-device, bukan per-akun) | Pindahkan ke database (Supabase), terikat ke `user_id`, lihat §8 |
+| 1 | Autentikasi JWT | ✅ Register / login / logout / `GET /me` — cookie httpOnly + fallback Bearer | — |
+| 2 | Session token storage | ✅ Cookie `access_token` (HttpOnly, SameSite=Lax); body token hanya untuk testing/Swagger | Production: pastikan HTTPS (`Secure`) — lihat §7.6 C-1 |
+| 3 | Watchlist per-user | ✅ `GET/PUT/POST/DELETE /api/user/watchlist` terikat `user_id`; guest tetap localStorage | Kategori watchlist masih meta lokal (opsional migrasi ke DB) |
 | 4 | Caching lintas-instance | `ttl_cache` in-memory, hanya berlaku untuk 1 proses backend | Kalau backend di-scale ke banyak instance/container, pindah ke Redis supaya cache konsisten |
 | 5 | Rate-limiting | ✅ `slowapi` 30/menit per IP pada search, chart, watchlist POST, news (+ auth login/register) | Sesuaikan angka limit berdasarkan traffic nyata; pertimbangkan limit per-user setelah auth full |
 | 6 | Sumber data harga | Masih `yfinance` (endpoint tidak resmi) | Evaluasi API berbayar sebelum scale ke banyak user simultan |
@@ -508,7 +508,7 @@ Implementasi Tahap 2 ini **baru mengganti arsitektur presentasi**, bukan menyele
 
 > **Prioritas:** Tinggi (blocker soft untuk onboarding user publik / berbayar).  
 > **Prasyarat:** JWT Auth dasar sudah ✅ (`PRD2/Enhancement-System/enhancement-system_JWTAuth.md`).  
-> **Referensi UI notes:** teks di `AuthCard` (“Token disimpan di localStorage…”) dihapus **hanya setelah** migrasi ini selesai.
+> **Referensi UI notes:** caption sesi di `AuthCard` sudah dihapus setelah migrasi cookie + watchlist per-akun.
 
 #### Mengapa
 
@@ -531,20 +531,46 @@ Implementasi Tahap 2 ini **baru mengganti arsitektur presentasi**, bukan menyele
 
 #### Checklist implementasi (urutan disarankan)
 
-- [ ] Backend: helper set/clear auth cookie (flags environment-aware: `Secure` hanya di non-local)
-- [ ] Backend: `login` / `register` set cookie; response boleh tetap return `user` (tanpa wajib kirim `access_token` ke body — atau deprecate field token di JSON)
-- [ ] Backend: `POST /api/auth/logout` + clear cookie
-- [ ] Backend: `deps.get_current_user` baca cookie dulu, fallback Bearer (transisi)
-- [ ] Frontend: `fetchJson` → `credentials: 'include'` untuk auth; hapus `getStoredToken` / `setStoredToken`
-- [ ] Frontend: `AuthCard` & `AppSidebarNav` logout panggil `POST /api/auth/logout` lalu redirect `/login`
-- [ ] Verifikasi: login → `/me` tanpa header manual; logout → `/me` 401; XSS-simulasi tidak bisa `localStorage.getItem('trading-dashboard-token')`
-- [ ] Update §7.5 baris #2 → ✅; update PRD §4.2 status auth session storage
+- [x] Backend: helper set/clear auth cookie (flags environment-aware: `Secure` hanya di non-local)
+- [x] Backend: `login` / `register` set cookie; response masih return `access_token` (Swagger) + cookie httpOnly untuk browser
+- [x] Backend: `POST /api/auth/logout` + clear cookie
+- [x] Backend: `deps.get_current_user` baca cookie dulu, fallback Bearer (transisi)
+- [x] Frontend: `fetchJson` → `credentials: 'include'`; hapus `getStoredToken` / `setStoredToken`
+- [x] Frontend: `AuthCard` & `AppSidebarNav` logout panggil `POST /api/auth/logout` lalu redirect `/login`
+- [x] Verifikasi: login → `/me` via cookie; logout clear cookie; tidak ada JWT di `localStorage`
+- [x] Update §7.5 baris #2 → ✅; sync dokumentasi §7.7
 
 #### Definition of Done
 
 1. Tidak ada JWT auth di `localStorage`.
 2. Session bertahan lewat cookie httpOnly; logout membersihkan cookie.
 3. Notes UI + dokumen §7.5/#2 dan JWTAuth §5 sudah mencerminkan status selesai.
+
+### 7.7 Checklist — Next Step & Caption Sesi (paragraf)
+
+Checklist gabungan untuk menutup caption Login/Sign Up (*“Sesi disimpan di perangkat…”*) dan batasan §7.5 #2–#3.
+
+**A. Prioritas next (urutan kerja)**
+
+- [x] **§7.6 — Migrasi JWT `localStorage` → httpOnly cookie** (login/register set cookie, logout clear cookie, frontend `credentials: 'include'`, hapus `trading-dashboard-token`).
+- [x] **§7.5 #3 — Watchlist per-user ke database** (GET/PUT/POST/DELETE `/api/user/watchlist`, terikat `user_id` via Prisma `WatchlistItem`).
+- [ ] **Production hardening** (`CORS_ORIGINS` domain asli, rotasi secret, hosting) — belakangan.
+- [ ] *(Opsional)* **Verifikasi email** — hanya jika ingin klaim “sebelum verifikasi email aktif” benar-benar berlaku (belum diimplementasikan).
+
+**B. Supaya caption Login/Sign Up akurat / selesai**
+
+- [x] Setelah cookie §7.6: sesi tidak mengandalkan token di `localStorage`.
+- [x] Setelah watchlist per-akun: simbol pantauan tersinkron ke akun (bukan hanya browser untuk user login).
+- [x] Update / hapus teks UI caption sesi agar sesuai kondisi nyata (jangan sebut verifikasi email sebelum fitur itu ada).
+- [x] Centang §7.5 #2–#3 + DoD §7.6; update catatan JWTAuth terkait storage.
+
+**C. Definition of Done singkat untuk caption**
+
+- [x] Tidak ada JWT auth di `localStorage`.
+- [x] Watchlist (simbol) tersimpan per akun di DB saat user login.
+- [x] Microcopy Login/Sign Up diganti atau dihapus tanpa klaim fitur yang belum dibangun.
+
+> **Status implementasi:** ✅ Cookie session + watchlist per-user sudah diimplementasikan (6 Sep 2026). Production hardening & email verification masih terbuka.
 
 ---
 

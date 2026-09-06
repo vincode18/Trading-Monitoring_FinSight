@@ -1,87 +1,123 @@
 'use client';
 
+import Image from 'next/image';
+import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 const SLIDES = [
   {
-    title: 'Monitor semua pasar di satu layar',
-    body: 'Pantau saham IDX, US, dan crypto dalam watchlist yang ringkas dengan update berkala.',
+    title: 'Pantau Pasar, Real-Time.',
+    body: 'Saham, kripto, dan indeks — satu dashboard, tanpa buka banyak tab.',
+    image: 'https://placehold.co/480x360/161B22/5C6673?text=Watchlist+Preview',
+    alt: 'Preview watchlist',
   },
   {
-    title: 'Analisis teknikal tanpa alat ekstra',
-    body: 'Candlestick, MA, RSI, MACD, dan Bollinger — disajikan padat ala terminal trading.',
+    title: 'Baca Sinyal Teknikal, Instan.',
+    body: 'MA, RSI, MACD, Bollinger Bands — semua terhitung otomatis di setiap simbol yang Anda pantau.',
+    image: 'https://placehold.co/480x360/161B22/5C6673?text=Chart+Preview',
+    alt: 'Preview chart',
   },
   {
-    title: 'Konteks berita sebelum keputusan',
-    body: 'Baca headline terkait simbol yang kamu pantau, lalu lanjut riset di chart & analysis.',
+    title: 'Berita yang Relevan, Bukan Berisik.',
+    body: 'Kabar penting per simbol, langsung terhubung ke watchlist Anda.',
+    image: 'https://placehold.co/480x360/161B22/5C6673?text=News+Preview',
+    alt: 'Preview berita',
   },
 ];
 
-export const ONBOARDING_KEY = 'trading-dashboard-onboarding-seen';
+/** Key resmi per Enhancement-design_OnboardingLoginPage.md §4.4 */
+export const ONBOARDING_KEY = 'onboarding-completed';
+/** Key lama — tetap dicek agar user yang sudah skip tidak melihat ulang */
+export const ONBOARDING_KEY_LEGACY = 'trading-dashboard-onboarding-seen';
+
+export function hasCompletedOnboarding(): boolean {
+  if (typeof window === 'undefined') return false;
+  return Boolean(
+    window.localStorage.getItem(ONBOARDING_KEY) ||
+      window.localStorage.getItem(ONBOARDING_KEY_LEGACY)
+  );
+}
+
+export function markOnboardingComplete() {
+  window.localStorage.setItem(ONBOARDING_KEY, '1');
+}
 
 export function OnboardingCarousel() {
   const [index, setIndex] = useState(0);
   const router = useRouter();
   const last = index === SLIDES.length - 1;
+  const slide = SLIDES[index];
 
-  function finish() {
-    window.localStorage.setItem(ONBOARDING_KEY, '1');
-    router.push('/signup');
-  }
-
-  function next() {
-    if (last) finish();
-    else setIndex((i) => i + 1);
-  }
-
-  function skip() {
-    window.localStorage.setItem(ONBOARDING_KEY, '1');
+  function goLanding() {
+    markOnboardingComplete();
     router.push('/');
   }
 
-  const slide = SLIDES[index];
+  function next() {
+    if (last) goLanding();
+    else setIndex((i) => i + 1);
+  }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-lg flex-col justify-center px-6 py-12">
-      <div className="animate-fade-up rounded-md border border-border bg-panel p-8 shadow-panel">
-        <div className="mb-6 flex h-36 items-center justify-center rounded border border-border-muted bg-canvas">
-          <div className="h-16 w-40 rounded-sm bg-gradient-to-r from-positive/20 via-panel-hover to-positive/10" />
-        </div>
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-positive">
-          Step {index + 1} / {SLIDES.length}
-        </p>
-        <h1 className="mt-2 text-h1 text-text-primary">{slide.title}</h1>
-        <p className="mt-2 text-sm leading-relaxed text-text-secondary">{slide.body}</p>
+    <div className="relative flex min-h-screen flex-col bg-canvas px-6 pb-8 pt-6">
+      <Link href="/" className="text-sm font-bold tracking-tight text-text-primary">
+        FinSight
+      </Link>
 
-        <div className="mt-8 flex items-center justify-between">
-          <div className="flex gap-1.5">
+      <div className="mx-auto flex w-full max-w-lg flex-1 flex-col items-center justify-center py-10">
+        <div className="animate-fade-up w-full text-center">
+          <div className="mx-auto overflow-hidden rounded-panel border border-border-card bg-panel">
+            <Image
+              src={slide.image}
+              alt={slide.alt}
+              width={480}
+              height={360}
+              className="h-auto w-full"
+              unoptimized
+              priority
+            />
+          </div>
+          <h1 className="mt-8 text-h1 text-text-primary md:text-[1.75rem]">{slide.title}</h1>
+          <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-text-secondary">
+            {slide.body}
+          </p>
+
+          <div className="mt-8 flex items-center justify-center gap-2">
             {SLIDES.map((_, i) => (
               <button
                 key={i}
+                type="button"
                 aria-label={`Slide ${i + 1}`}
                 onClick={() => setIndex(i)}
-                className={`h-1.5 w-1.5 rounded-full ${
+                className={`h-2 w-2 rounded-full transition-colors ${
                   i === index ? 'bg-positive' : 'bg-border'
                 }`}
               />
             ))}
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={skip}
-              className="rounded px-3 py-2 text-sm text-text-muted hover:text-text-secondary"
-            >
-              Skip
-            </button>
-            <button
-              onClick={next}
-              className="rounded bg-positive px-4 py-2 text-sm font-semibold text-canvas"
-            >
-              {last ? 'Get Started' : 'Next'}
-            </button>
-          </div>
         </div>
+      </div>
+
+      <div className="mx-auto flex w-full max-w-lg items-center justify-between gap-3">
+        {!last ? (
+          <button
+            type="button"
+            onClick={goLanding}
+            className="rounded-md px-3 py-2.5 text-sm text-text-muted hover:text-text-secondary"
+          >
+            Lewati
+          </button>
+        ) : (
+          <span />
+        )}
+        <button
+          type="button"
+          onClick={next}
+          className="rounded-md bg-positive px-5 py-2.5 text-sm font-semibold text-canvas hover:bg-positive/90"
+        >
+          {last ? 'Mulai Sekarang' : 'Lanjut'}
+        </button>
       </div>
     </div>
   );
