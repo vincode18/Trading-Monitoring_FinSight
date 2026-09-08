@@ -2,14 +2,15 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'AI Trading Dashboard',
-  description: 'Dashboard riset trading real-time — harga, indikator teknikal, dan berita.',
+  title: 'FinSight — AI Research Terminal',
+  description:
+    'Pantau pasar, analisis teknikal, dan berita — alat bantu riset untuk trader ritel Indonesia.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id">
-      <body>{children}</body>
+      <body className="font-sans antialiased">{children}</body>
     </html>
   );
 }

@@ -71,7 +71,7 @@ trading, bukan tampilan konsumen yang lapang:
 | Border | `#2A313C` |
 | Aksen positif (naik) | `#00E676` |
 | Aksen negatif (turun) | `#FF5252` |
-| Font UI | Inter |
+| Font UI | Jakarta Sans |
 | Font angka/data | JetBrains Mono |
 
 Chart candlestick pakai **`lightweight-charts`** — library sumber terbuka dari
@@ -110,11 +110,31 @@ sesuai `Documentation-Program.md` §8 dan §7.
   (`chart.addCandlestickSeries()` vs `chart.addSeries(CandlestickSeries)`
   di v5). Kalau nanti upgrade ke v5, seluruh `components/CandlestickChart.tsx`
   perlu disesuaikan API call-nya.
-- Auth belum ada — endpoint backend saat ini **terbuka tanpa proteksi**.
-  Jangan deploy ke publik sebelum JWT/auth middleware ditambahkan (lihat
-  roadmap Tahap 2 di `PRD.md`).
+- Auth JWT + **httpOnly cookie session** — `POST /api/auth/register|login|logout`,
+  `GET /api/auth/me`. Frontend memakai `credentials: 'include'` (bukan `localStorage` token).
+  Endpoint market/chart/news tetap publik (read-only).
+- Watchlist per-akun — `GET/PUT/POST/DELETE /api/user/watchlist` (butuh login).
+  Guest masih pakai localStorage sebagai fallback.
+- Rate limit 30/menit per IP pada search, chart, watchlist POST, dan news.
+- CORS: `GET`/`POST`/`PUT`/`DELETE` + header `Content-Type` / `Authorization` + credentials.
+
+### Testing Auth
+
+**Browser (disarankan):** login di http://localhost:3000/login — cookie diset otomatis;
+buka DevTools → Application → Cookies → `access_token` (HttpOnly).
+
+**Swagger (fallback Bearer):**
+
+1. Jalankan backend: `uvicorn app.main:app --reload --port 8000`
+2. Buka http://localhost:8000/docs
+3. `POST /api/auth/login` → salin `access_token`
+4. **Authorize** → `Bearer <access_token>`
+5. Coba `GET /api/auth/me` dan `GET /api/user/watchlist`
 
 ## Langkah Selanjutnya
 
-Lihat `Documentation-Program.md` §7 dan §8 untuk detail migrasi database
-(Supabase + Prisma) dan area yang perlu di-refactor sebelum production.
+1. Production hardening (`CORS_ORIGINS` domain asli, HTTPS/`Secure` cookie, secret rotation).
+2. *(Opsional)* Verifikasi email; migrasi meta kategori watchlist ke DB.
+3. Hosting cloud.
+
+Detail: `Documenatation/Documentation-Program.md` §7.6–§7.7.

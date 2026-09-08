@@ -1,11 +1,10 @@
 """Endpoint API untuk data historis (candlestick) + indikator teknikal."""
-from __future__ import annotations
-
 import math
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
 
 from app.api.schemas import CandleResponse, ChartResponse, IndicatorPointResponse
+from app.core.rate_limit import DEFAULT_LIMIT, limiter
 from app.indicators.technical import add_all_indicators, simple_signal
 from app.services.market_data import get_history
 
@@ -25,7 +24,9 @@ def _clean(value):
 
 
 @router.get("/{symbol}", response_model=ChartResponse)
+@limiter.limit(DEFAULT_LIMIT)
 def get_chart(
+    request: Request,
     symbol: str,
     period: str = Query("6mo", description="1mo, 3mo, 6mo, 1y, 2y, 5y"),
     interval: str = Query("1d", description="1d, 1wk, 1h, 30m, 15m"),
@@ -62,6 +63,8 @@ def get_chart(
             date=row["Date"].isoformat(),
             ma20=_clean(row.get("MA20")),
             ma50=_clean(row.get("MA50")),
+            ma100=_clean(row.get("MA100")),
+            ma200=_clean(row.get("MA200")),
             ema12=_clean(row.get("EMA12")),
             ema26=_clean(row.get("EMA26")),
             rsi14=_clean(row.get("RSI14")),

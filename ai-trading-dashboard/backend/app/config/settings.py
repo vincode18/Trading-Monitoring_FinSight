@@ -24,9 +24,9 @@ class Settings:
     CACHE_TTL_SECONDS: int = int(os.getenv("CACHE_TTL_SECONDS", "60"))
     NEWS_MAX_ITEMS: int = int(os.getenv("NEWS_MAX_ITEMS", "8"))
 
-    # Database (Supabase + Prisma) — lihat Documentation-Program.md §8
+    # Database (Supabase + Prisma) — lihat Enhancement-system-setup_DatabaseSupabase.md
     DATABASE_URL: str | None = os.getenv("DATABASE_URL")
-    DIRECT_DATABASE_URL: str | None = os.getenv("DIRECT_DATABASE_URL")
+    DIRECT_URL: str | None = os.getenv("DIRECT_URL") or os.getenv("DIRECT_DATABASE_URL")
 
     JWT_SECRET_KEY: str | None = os.getenv("JWT_SECRET_KEY")
     JWT_EXPIRE_MINUTES: int = int(os.getenv("JWT_EXPIRE_MINUTES", "1440"))

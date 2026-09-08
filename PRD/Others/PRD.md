@@ -1,9 +1,9 @@
 # Product Requirements Document (PRD)
 ## AI Trading Dashboard
 
-> **Versi Dokumen:** 2.0
-> **Status:** Tahap 1 Selesai — Tahap 2 Sebagian (Next.js + FastAPI) — Tahap 3 Direncanakan
-> **Terakhir Diperbarui:** 5 September 2026
+> **Versi Dokumen:** 2.1
+> **Status:** Tahap 1 Selesai — Tahap 2 Sebagian (Next.js + FastAPI + JWT) — Tahap 3 Direncanakan
+> **Terakhir Diperbarui:** 6 September 2026
 
 ---
 
@@ -13,7 +13,7 @@ AI Trading Dashboard adalah aplikasi berbasis web untuk memantau harga pasar (sa
 
 Produk dibangun secara bertahap:
 1. **Tahap 1 (Selesai):** Dashboard lokal Streamlit, single-user
-2. **Tahap 2 (Sebagian):** Web app Next.js + FastAPI — UI & API sudah jalan; auth/DB/hosting masih menyusul
+2. **Tahap 2 (Sebagian):** Web app Next.js + FastAPI — UI, API, JWT Auth dasar, Supabase/Prisma sudah jalan; session cookie, watchlist per-user, hosting masih menyusul
 3. **Tahap 3 (Direncanakan):** Model bisnis subscription dengan role Admin/Member dan pembayaran via Transfer Bank & Midtrans
 
 ---
@@ -71,14 +71,16 @@ Dashboard terpusat yang menggabungkan harga, grafik candlestick, indikator tekni
 |---|---|---|---|
 | Backend API terpisah (FastAPI) | Pisahkan logic dari tampilan, expose REST endpoint | ✅ | Tinggi |
 | Frontend custom (Next.js, dark mode) | UI analitis dense ala terminal trading, chart via TradingView `lightweight-charts` | ✅ | Tinggi |
-| Autentikasi pengguna | Register, login, JWT session | 🔜 Belum ada — semua endpoint masih terbuka | Tinggi |
+| Autentikasi pengguna (JWT) | Register, login, `GET /me`, role di DB | ✅ Bearer JWT — token masih di `localStorage` | Tinggi |
+| Session storage (httpOnly cookie) | Pindahkan JWT dari `localStorage` → cookie `HttpOnly` + logout server-side | 🔜 Belum — lihat `Documentation-Program.md` **§7.6** | Tinggi |
 | Watchlist per akun (database) | Saat ini masih `localStorage` browser (per-device, bukan per-akun) | 🔜 Perlu Supabase + `user_id` | Tinggi |
 | Migrasi sumber data | Evaluasi API berbayar (Polygon.io/Alpha Vantage/Twelve Data) untuk stabilitas skala | 🔜 Belum, masih `yfinance` | Sedang |
 | Hosting cloud | Deploy ke VPS/Railway/Render dengan domain sendiri | 🔜 Belum di-deploy, masih local dev | Tinggi |
 | Riwayat & preferensi user | Simpan preferensi tampilan, histori simbol yang dilihat | 🔜 Belum | Rendah |
 
-> Detail teknis lengkap arsitektur frontend/backend ada di `Documentation-Program.md` §7. Batasan yang belum diselesaikan (auth, DB, rate-limiting) didaftar di §7.5 dokumen yang sama — **jangan deploy ke publik sebelum item-item itu ditutup.**
-
+> Detail teknis lengkap arsitektur frontend/backend ada di `Documentation-Program.md` §7.  
+> Batasan terbuka: §7.5 (tabel bernomor). **Next step auth session:** §7.6 (migrasi httpOnly cookie).  
+> Jangan onboarding user publik/berbayar sebelum §7.6 + watchlist per-user ditutup.
 ### 4.3 Tahap 3 — Subscription & Billing 🔜 *(Direncanakan)*
 
 | Fitur | Deskripsi | Prioritas |

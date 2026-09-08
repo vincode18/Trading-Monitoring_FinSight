@@ -7,6 +7,7 @@ import { ChartData } from '@/types/market';
 interface CandlestickChartProps {
   data: ChartData;
   showBollinger: boolean;
+  showMa?: boolean;
 }
 
 // Palet chart mengikuti design tokens: positive/negative dari brief,
@@ -22,7 +23,7 @@ const CHART_COLORS = {
   bollinger: '#5C6673',
 };
 
-export function CandlestickChart({ data, showBollinger }: CandlestickChartProps) {
+export function CandlestickChart({ data, showBollinger, showMa = true }: CandlestickChartProps) {
   const priceContainerRef = useRef<HTMLDivElement>(null);
   const rsiContainerRef = useRef<HTMLDivElement>(null);
   const macdContainerRef = useRef<HTMLDivElement>(null);
@@ -89,6 +90,7 @@ export function CandlestickChart({ data, showBollinger }: CandlestickChartProps)
       color: CHART_COLORS.ma20,
       lineWidth: 1,
       title: 'MA20',
+      visible: showMa,
     });
     ma20Series.setData(
       data.indicators
@@ -100,6 +102,7 @@ export function CandlestickChart({ data, showBollinger }: CandlestickChartProps)
       color: CHART_COLORS.ma50,
       lineWidth: 1,
       title: 'MA50',
+      visible: showMa,
     });
     ma50Series.setData(
       data.indicators
@@ -218,7 +221,7 @@ export function CandlestickChart({ data, showBollinger }: CandlestickChartProps)
       charts.forEach((c) => c.remove());
       chartsRef.current = [];
     };
-  }, [data, showBollinger]);
+  }, [data, showBollinger, showMa]);
 
   return (
     <div className="flex flex-col gap-2">

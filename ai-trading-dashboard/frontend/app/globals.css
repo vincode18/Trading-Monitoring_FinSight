@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -12,11 +12,10 @@ html,
 body {
   background-color: #0e1117;
   color: #f0f3f6;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Scrollbar tipis, konsisten dengan tema dense/dark */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -32,15 +31,41 @@ body {
   background: #3a4350;
 }
 
-/* Focus ring yang tetap terlihat untuk aksesibilitas keyboard,
-   tapi tidak norak di tema dark */
 :focus-visible {
   outline: 2px solid #00e676;
   outline-offset: 2px;
 }
 
-/* Angka finansial pakai tabular-nums supaya kolom tabel align rapi */
 .font-mono,
 .tabular-nums {
   font-variant-numeric: tabular-nums;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.5s ease-out both;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
 }

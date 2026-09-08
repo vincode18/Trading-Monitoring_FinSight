@@ -28,6 +28,7 @@ class QuoteSnapshot:
     currency: str | None
     market_state: str | None
     fetched_at: float
+    market_cap: float | None = None
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -63,6 +64,7 @@ def get_history(symbol: str, period: str = "6mo", interval: str = "1d") -> pd.Da
 def get_quote_snapshot(symbol: str) -> QuoteSnapshot:
     """Ambil ringkasan harga terkini + perubahan harian untuk satu simbol."""
     ticker = yf.Ticker(symbol)
+    market_cap = None
     try:
         info = ticker.fast_info
         last_price = _safe_float(getattr(info, "last_price", None))
@@ -73,12 +75,14 @@ def get_quote_snapshot(symbol: str) -> QuoteSnapshot:
         try:
             meta = ticker.get_info()
             name = meta.get("longName") or meta.get("shortName") or symbol
+            market_cap = _safe_float(meta.get("marketCap"))
         except Exception:
             pass
     except Exception:
         last_price = prev_close = None
         currency = market_state = None
         name = symbol
+        market_cap = None
 
     change = None
     change_pct = None
@@ -96,6 +100,7 @@ def get_quote_snapshot(symbol: str) -> QuoteSnapshot:
         currency=currency,
         market_state=market_state,
         fetched_at=time.time(),
+        market_cap=market_cap,
     )
 
 
