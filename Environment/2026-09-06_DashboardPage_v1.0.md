@@ -2,7 +2,7 @@
 
 > **Versi Dokumen:** 1.0 — disusun dari draft checklist pengguna, diverifikasi ulang terhadap kode
 > `Development` saat ini (lihat §0 Catatan Verifikasi)
-> **Terkait:** `Environment/Enhancement-Design-1-UXVisual.md` §3 (Design Language), §4.4 (Trading
+> **Terkait:** `Environment/2026-09-06_UXVisual_v1.0.md` §3 (Design Language), §4.4 (Trading
 > Monitor Dashboard)
 > **Terkait teknis:** `Documentation/Documentation-Program.md` §4.1 (`market_data.py`), §4.3
 > (`technical.py`), §7.3–7.4 (struktur backend/frontend)
@@ -17,14 +17,14 @@
 Draft awal dokumen ini ditulis sebagai spesifikasi murni (belum ada kode). Sebelum difinalisasi
 sebagai v1, setiap item di §2 **diverifikasi langsung ke kode di branch `Development`** — ternyata
 sebagian fondasi sudah dibangun lewat commit implementasi Auth/JWT + Analysis API sebelumnya
-(lihat `Environment/enhancement-system_JWTAuth.md`). Perubahan dari draft ke v1:
+(lihat `Environment/2026-09-06_JWTAuth_v1.0.md`). Perubahan dari draft ke v1:
 
 - Kolom **"Status Kode Saat Ini"** ditambahkan di §2 — membedakan item yang tinggal **diperluas**
   dari yang benar-benar **dibangun dari nol**, supaya urutan implementasi (§7) tidak
   mengerjakan ulang sesuatu yang sudah ada.
 - Referensi dokumen dikoreksi ke path yang benar-benar ada di repo saat ini: `Documentation/`
   (bukan `PRD/`) untuk `Documentation-Business.md`/`Documentation-Program.md`, dan
-  `Environment/Enhancement-Design-1-UXVisual.md` (bukan `Enhancement-Design-1-Visual-Business.md`).
+  `Environment/2026-09-06_UXVisual_v1.0.md` (bukan `Enhancement-Design-1-Visual-Business.md`).
 - Wireframe (§3) dan tabel perubahan kode (§6) disesuaikan dengan nama file/komponen **yang
   benar-benar ada** di `frontend/app/(app)/dashboard/page.tsx` dan `frontend/components/dashboard/`
   saat ini, bukan nama generik dari draft.
@@ -550,10 +550,10 @@ Disusun ulang dari draft dengan mempertimbangkan apa yang **sudah** ada di kode 
 
 ## 9. Dokumen Terkait
 
-- `Environment/Enhancement-Design-1-UXVisual.md` — design token & inventaris 9 layar (dokumen induk)
-- `Environment/enhancement-design_OnboardingLoginPage.md` — spesifikasi layar Onboarding/Landing/
+- `Environment/2026-09-06_UXVisual_v1.0.md` — design token & inventaris 9 layar (dokumen induk)
+- `Environment/2026-09-06_OnboardingLoginPage_v2.0.md` — spesifikasi layar Onboarding/Landing/
   Login (FinSight)
-- `Environment/enhancement-system_JWTAuth.md` — status implementasi Auth JWT + Rate Limiting (basis
+- `Environment/2026-09-06_JWTAuth_v1.0.md` — status implementasi Auth JWT + Rate Limiting (basis
   commit yang sudah menambahkan Analysis API & route groups yang direferensikan di dokumen ini)
 - `Documentation/Documentation-Program.md` §4, §7 — arsitektur backend/frontend existing yang
   jadi basis reuse

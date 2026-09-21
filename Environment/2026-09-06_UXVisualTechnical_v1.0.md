@@ -2,7 +2,7 @@
 
 > **Versi Dokumen:** 1.0
 > **Terkait:** `PRD/Documentation-Program.md` §7 (Arsitektur Frontend+Backend Tahap 2)
-> **Dokumen pasangan:** `Enhancement-Design-1-UXVisual.md` (desain visual & business)
+> **Dokumen pasangan:** `2026-09-06_UXVisual_v1.0.md` (desain visual & business)
 > **Status:** 🔜 Diusulkan — belum diimplementasikan
 > **Terakhir Diperbarui:** 6 September 2026
 > **Audiens:** Frontend/Backend Developer, AI agent yang melanjutkan implementasi
@@ -19,7 +19,7 @@ Redesign ini **tidak mengubah** layer data/indikator (`backend/app/services/*`,
 2. **Backend:** beberapa endpoint baru untuk data yang belum diekspos (index global, top gainers,
    market cap/dominance, fear & greed, skor analisis 0–100, radar chart).
 3. **Tidak ada perubahan** pada `backend/prisma/schema.prisma` — model `User/WatchlistItem/
-   Subscription/Payment` yang sudah dibuat di `Environment/Enhancement-system-setup_DatabaseSupabase.md`
+   Subscription/Payment` yang sudah dibuat di `Environment/2026-09-06_DatabaseSupabase_v1.1.md`
    tetap dipakai apa adanya untuk Login/Sign Up saat auth diimplementasikan (di luar cakupan
    dokumen ini).
 
@@ -118,7 +118,7 @@ schema di `backend/app/api/schemas.py`). **Tidak ada endpoint lama yang berubah/
 | `GET /api/market/top-gainers?limit=5` | Top N simbol dengan `change_pct` tertinggi dari watchlist yang dikirim, atau dari daftar indeks acuan | Hitung di backend dari `get_multiple_snapshots()` | Sederhana — tidak butuh sumber data baru, hanya sorting |
 | `GET /api/market/summary` | `Market Cap`, `24h Volume`, `BTC Dominance` (agregat crypto) | `yfinance` per simbol crypto utama (`BTC-USD`, `ETH-USD`, dst.), dijumlahkan | Market cap total pasar saham **tidak realistis** dari `yfinance` gratis — batasi ke crypto atau tandai sebagai estimasi/placeholder di UI |
 | `GET /api/market/fear-greed` | Indeks Fear & Greed | **Tidak tersedia di `yfinance`** — perlu sumber eksternal (mis. alternative.me API untuk crypto Fear&Greed) atau dihitung proksi sederhana dari volatilitas + momentum RSI rata-rata watchlist | ⚠️ Butuh keputusan produk: pakai API pihak ketiga (dependency baru) vs. proksi internal (kurang akurat tapi tanpa dependency) |
-| `GET /api/analysis/score/{symbol}` | Skor 0–100 (dipakai `ScoreGauge`) + label (Strong Buy/Buy/Neutral/Sell/Strong Sell) | Turunan dari indikator existing: bobot RSI, MACD, posisi MA20 vs MA50 | Perluasan `simple_signal()` — ubah dari string ke skor numerik. **Tetap harus disertai disclaimer**, lihat §4.5/4.9 di `Enhancement-Design-1-UXVisual.md` |
+| `GET /api/analysis/score/{symbol}` | Skor 0–100 (dipakai `ScoreGauge`) + label (Strong Buy/Buy/Neutral/Sell/Strong Sell) | Turunan dari indikator existing: bobot RSI, MACD, posisi MA20 vs MA50 | Perluasan `simple_signal()` — ubah dari string ke skor numerik. **Tetap harus disertai disclaimer**, lihat §4.5/4.9 di `2026-09-06_UXVisual_v1.0.md` |
 | `GET /api/analysis/radar/{symbol}` | 5 skor sumbu: Price Action, Volume, Momentum, Trend, Volatility | Perhitungan baru di `technical.py` (mis. Volatility dari stdev return, Volume dari rata-rata vs rata-rata historis, dst.) | Fungsi baru murni matematis, ikuti pola `add_all_indicators()` — taruh di `technical.py` supaya tetap reusable Streamlit/FastAPI |
 | `GET /api/market/support-resistance/{symbol}` | 2 level support + 2 level resistance | Bisa dihitung sederhana dari local min/max N hari terakhir, atau titik pivot standar | Fungsi baru di `technical.py` |
 
@@ -213,7 +213,7 @@ perlu klien HTTP baru.
 
 ## 8. Dokumen Terkait
 
-- `Enhancement-Design-1-UXVisual.md` — spesifikasi visual, tipografi, palet, inventaris layar.
+- `2026-09-06_UXVisual_v1.0.md` — spesifikasi visual, tipografi, palet, inventaris layar.
 - `PRD/Documentation-Program.md` §4.3, §7 — modul indikator & arsitektur Tahap 2 yang jadi basis reuse.
-- `Environment/Enhancement-system-setup_DatabaseSupabase.md` — schema DB yang dipakai saat Login/Sign
+- `Environment/2026-09-06_DatabaseSupabase_v1.1.md` — schema DB yang dipakai saat Login/Sign
   Up diwiring ke backend sungguhan.

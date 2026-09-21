@@ -20,9 +20,9 @@ menjadi fitur fungsional, disusun per menu dengan pembagian jelas: **Data Model 
 **Prinsip yang dipertahankan dari dokumen-dokumen sebelumnya:**
 - Reuse sebanyak mungkin fungsi/endpoint yang sudah ada (`get_quote_snapshot`, `get_multiple_snapshots`,
   `compute_analysis_score`, `detect_ma_cross`, `volume_ratio` dari `technical.py` — semua sudah
-  diimplementasikan, lihat `Environment/enhancement-design_DashboardPage_v1.md`).
+  diimplementasikan, lihat `Environment/2026-09-06_DashboardPage_v1.0.md`).
 - Model `User`/`Subscription`/`Payment` di `backend/prisma/schema.prisma` **sudah ada** (dari
-  `Environment/Enhancement-system-setup_DatabaseSupabase.md`) — Portfolio & Settings menambah
+  `Environment/2026-09-06_DatabaseSupabase_v1.1.md`) — Portfolio & Settings menambah
   model baru di skema yang sama, bukan skema terpisah.
 - Semua fitur baru **wajib** dilindungi `get_current_user()` (dependency existing,
   `backend/app/core/deps.py`) — ketiga menu ini per definisi personal/per-akun, beda dari
@@ -84,7 +84,7 @@ Tambah relasi `alerts Alert[]` di model `User`.
 
 | Task | Detail |
 |---|---|
-| Tambah model `Alert` ke `schema.prisma`, jalankan `prisma migrate dev --name add_alerts` | Ikuti prosedur di `Environment/Enhancement-system-setup_DatabaseSupabase.md` §5 |
+| Tambah model `Alert` ke `schema.prisma`, jalankan `prisma migrate dev --name add_alerts` | Ikuti prosedur di `Environment/2026-09-06_DatabaseSupabase_v1.1.md` §5 |
 | `backend/app/api/schemas.py` — tambah `AlertCreateRequest`, `AlertResponse` | `AlertCreateRequest`: `symbol`, `condition`, `threshold` (opsional untuk kondisi tanpa angka seperti `GOLDEN_CROSS`) |
 | `backend/app/api/alerts.py` (baru) — `POST /api/alerts` | Buat alert baru, terikat ke `get_current_user()` |
 | `GET /api/alerts` | List alert milik user (semua status, atau filter `?status=ACTIVE`) |
@@ -291,11 +291,11 @@ project):
 
 ## 5. Dokumen Terkait
 
-- `Environment/Enhancement-system-setup_DatabaseSupabase.md` — prosedur migrasi Prisma yang
+- `Environment/2026-09-06_DatabaseSupabase_v1.1.md` — prosedur migrasi Prisma yang
   dipakai ulang untuk model `Alert`/`PortfolioHolding` di dokumen ini
-- `Environment/enhancement-system_JWTAuth.md` — `get_current_user()`/`core/security.py` yang jadi
+- `Environment/2026-09-06_JWTAuth_v1.0.md` — `get_current_user()`/`core/security.py` yang jadi
   basis proteksi endpoint ketiga menu ini
-- `Environment/New-Features.md` — ide fitur terpisah untuk Dashboard/Watchlist/Chart/Analysis/News
+- `Environment/2026-09-21_NewFeatures_v1.0.md` — ide fitur terpisah untuk Dashboard/Watchlist/Chart/Analysis/News
   (dari `yfinance`), tidak tumpang tindih dengan dokumen ini
 - `Documentation/Documentation-Business.md` §4, §6 — role Admin/Member & roadmap Subscription
   Tahap 3 yang jadi konteks section Subscription di Settings

@@ -1,7 +1,7 @@
 # New Features — Ide Perluasan Fitur dari yfinance
 
 > **Versi Dokumen:** 1.0
-> **Terkait:** `Environment/enhancement-design_DashboardPage_v1.md`, `Environment/design_DashboardPage_v1.1.md`
+> **Terkait:** `Environment/2026-09-06_DashboardPage_v1.0.md`, `Environment/2026-09-07_DashboardPage_v1.1.md`
 > (dashboard sudah diimplementasikan — lihat commit `368ffb4`), `Documentation/Documentation-Program.md`
 > §4.1–4.3
 > **Sumber:** `yfinance` API reference — `Ticker` (`ticker.py`), `Sector`/`Industry`/`Market` (domain
@@ -17,7 +17,7 @@
 
 ## 0. Prinsip Seleksi Ide
 
-Sama seperti pendekatan `enhancement-design_DashboardPage_v1.md`: **semua ide di bawah memakai
+Sama seperti pendekatan `2026-09-06_DashboardPage_v1.0.md`: **semua ide di bawah memakai
 `yfinance` yang sudah jadi dependency inti** — tidak ada API key baru, tidak ada dependency Python
 baru (kecuali disebutkan eksplisit). Setiap ide ditandai sudah dicek terhadap `yfinance` versi yang
 dipakai project (`>=0.2.54`, `backend/requirements.txt`) lewat pembacaan source code langsung.
@@ -39,7 +39,7 @@ lihat §"Status Kode Saat Ini" di tiap ide untuk detail):
 | `Market` (domain class baru) | `status` (jam buka/tutup + timezone per bursa), `summary` (ringkasan indeks per exchange) | ❌ Belum — status pasar (`market_state`) saat ini hanya dari `fast_info` per simbol individual |
 | `EquityQuery` + `screen()` (Screener) | Kategori screener bawaan Yahoo (`day_gainers`, `most_actives`, dst. — nama persis perlu diverifikasi saat implementasi) | ❌ Belum — Movers panel (`/api/market/volume-movers`, `/api/market/top-gainers`) saat ini **loop manual** tiap simbol pool, bukan pakai screener Yahoo langsung |
 | `Ticker` | `sec_filings`, `isin`, `valuation` | ❌ Belum |
-| `WebSocket`/`AsyncWebSocket` | Streaming quote real-time | ❌ Belum — **tetap non-goal** (lihat §7, sudah eksplisit ditolak di `enhancement-design_DashboardPage_v1.md` §1.1) |
+| `WebSocket`/`AsyncWebSocket` | Streaming quote real-time | ❌ Belum — **tetap non-goal** (lihat §7, sudah eksplisit ditolak di `2026-09-06_DashboardPage_v1.0.md` §1.1) |
 
 ---
 
@@ -128,7 +128,7 @@ baru), bukan menambah panel baru di samping.
    FinSight. Karena belum ada aset logo final di repo, pakai SVG monogram sederhana (lingkaran
    candlestick/mark geometris warna `positive` di atas `panel`) sebagai placeholder sampai aset
    asli tersedia — pola yang sama dengan placeholder `placehold.co` di
-   `Environment/enhancement-design_OnboardingLoginPage.md` §3, tapi karena ini elemen UI kecil
+   `Environment/2026-09-06_OnboardingLoginPage_v2.0.md` §3, tapi karena ini elemen UI kecil
    yang sering dirender (bukan gambar konten), lebih baik inline SVG langsung di kode daripada
    fetch eksternal.
 2. **Ikon hamburger untuk toggle:** Ganti `ChevronIcon` dengan ikon hamburger 3-garis (☰) untuk
@@ -192,7 +192,7 @@ yang belum dipakai sama sekali oleh project:
 
 ## 5. Dashboard — Ide dari `yfinance` (Kelas Domain Baru)
 
-Dashboard sudah lengkap sesuai `enhancement-design_DashboardPage_v1.md` (Market Overview, Sector
+Dashboard sudah lengkap sesuai `2026-09-06_DashboardPage_v1.0.md` (Market Overview, Sector
 Heatmap, Movers, Sentiment Gauge, Forex, MA Cross Alerts, Earnings Calendar — semua sudah
 terimplementasi). Ide baru di bawah memakai **kelas domain `yfinance` yang belum pernah disentuh**
 sama sekali oleh project (`Sector`, `Industry`, `Market`, `EquityQuery`/`screen()`):
@@ -236,11 +236,11 @@ sama sekali oleh project (`Sector`, `Industry`, `Market`, `EquityQuery`/`screen(
 
 ## 9. Dokumen Terkait
 
-- `Environment/enhancement-design_DashboardPage_v1.md` / `Environment/design_DashboardPage_v1.1.md`
+- `Environment/2026-09-06_DashboardPage_v1.0.md` / `Environment/2026-09-07_DashboardPage_v1.1.md`
   — spesifikasi dashboard yang sudah diimplementasikan (basis "Status Kode Saat Ini" di dokumen ini)
 - `PRD/Enhancement-System/PRD-S-002_Enhancement-system_EarningCalendar.md` — implementasi Earnings
   Calendar (referensi pola integrasi `yfinance.Ticker().calendar` yang sudah berhasil, jadi acuan
   gaya untuk ide-ide fundamental/ownership di §4)
-- `Environment/Added-Features.md` — dev task Alerts/Portfolio/Settings (terpisah dari dokumen ini)
+- `Environment/2026-09-21_AddedFeatures_v1.0.md` — dev task Alerts/Portfolio/Settings (terpisah dari dokumen ini)
 - `Documentation/Documentation-Program.md` §4.1, §4.3 — modul `market_data.py`/`technical.py` yang
   jadi basis reuse

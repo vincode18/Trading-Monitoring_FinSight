@@ -1,8 +1,8 @@
 # Enhancement Design — Dashboard Page v1.1
 
-> **Versi Dokumen:** 1.1 — patch atas `Environment/enhancement-design_DashboardPage_v1.md`, bukan
+> **Versi Dokumen:** 1.1 — patch atas `Environment/2026-09-06_DashboardPage_v1.0.md`, bukan
 > penulisan ulang
-> **Terkait:** `Environment/enhancement-design_DashboardPage_v1.md` (dokumen induk, §5.2, §5.3,
+> **Terkait:** `Environment/2026-09-06_DashboardPage_v1.0.md` (dokumen induk, §5.2, §5.3,
 > §4.5, §4.6)
 > **Sumber:** Review screenshot implementasi FinSight Dashboard (tab Indonesia aktif)
 > **Status:** 🔜 Diusulkan — belum diimplementasikan
@@ -22,25 +22,25 @@ tidak ada `SectorHeatmap.tsx`, `MoversPanel.tsx`, `ForexStrip.tsx`, atau endpoin
 **Analysis per-simbol**, bukan Sentiment Gauge level-market di Dashboard.
 
 Ini **tidak mengubah substansi** dokumen ini — screenshot yang direview kemungkinan besar adalah
-**purwarupa desain/mockup** dari `enhancement-design_DashboardPage_v1.md` (bukan build yang sudah
+**purwarupa desain/mockup** dari `2026-09-06_DashboardPage_v1.0.md` (bukan build yang sudah
 di-deploy), dan kelima masalah yang ditemukan (§1–§7) tetap valid sebagai catatan desain yang
 harus dipegang **saat** widget-widget tersebut mulai diimplementasikan. Dengan kata lain: dokumen
 ini berfungsi sebagai **spesifikasi gabungan** (v1 + patch v1.1) untuk dikerjakan sekaligus,
 bukan sebagai bug report atas sesuatu yang sudah live. Perubahan lain dari draft ke v1.1:
 
 - Referensi dokumen dikoreksi ke path yang benar-benar ada di repo: `Environment/` (bukan tanpa
-  prefix) untuk `enhancement-design_DashboardPage_v1.md`, `Environment/Enhancement-Design-1-UXVisual.md`
+  prefix) untuk `2026-09-06_DashboardPage_v1.0.md`, `Environment/2026-09-06_UXVisual_v1.0.md`
   (bukan `Enhancement-Design-1-Visual-Business.md`), dan `Documentation/` (bukan `PRD/`) untuk
   `Documentation-Program.md`/`Documentation-Business.md`.
 - Setiap "Perubahan Kode" di §3–§7 dicatat sebagai **bagian dari implementasi widget terkait**
   (bukan patch terpisah di atas kode yang sudah berjalan), supaya urutan pengerjaan v1 tetap
-  konsisten dengan urutan implementasi yang sudah disusun di `enhancement-design_DashboardPage_v1.md` §7.
+  konsisten dengan urutan implementasi yang sudah disusun di `2026-09-06_DashboardPage_v1.0.md` §7.
 
 ---
 
 ## 1. Latar Belakang
 
-Spesifikasi `enhancement-design_DashboardPage_v1.md` mencakup Sector Performance, Market Movers,
+Spesifikasi `2026-09-06_DashboardPage_v1.0.md` mencakup Sector Performance, Market Movers,
 Sentiment Gauge, Forex Strip, dan Status Strip sebagai widget yang perlu dibangun. Review lebih
 detail (dari mockup/purwarupa desain tab "Indonesia") menemukan **5 penyempurnaan** yang perlu
 ditambahkan ke spesifikasi tersebut **sebelum** widget-widget ini mulai dikerjakan, supaya
@@ -61,13 +61,13 @@ implementasi pertama sudah benar dan tidak perlu revisi ulang setelah dibangun:
    perlu diperluas menampilkan **seluruh simbol/movers utama** dari market yang sedang aktif.
 
 Dokumen ini adalah **spesifikasi tambahan** untuk kelima poin di atas, ditambahkan ke
-`enhancement-design_DashboardPage_v1.md` sebelum implementasi widget terkait dimulai. Bagian
+`2026-09-06_DashboardPage_v1.0.md` sebelum implementasi widget terkait dimulai. Bagian
 spesifikasi v1 yang tidak disentuh (struktur tab market, formula Sentiment Gauge, Market Overview
 chart) **tidak diubah** — hanya dirujuk sebagai konteks di mana penyempurnaan ini menempel.
 
 ### 1.1 Non-Goals
 
-- Tidak mengubah formula Sentiment Gauge (`enhancement-design_DashboardPage_v1.md` §5.1) — sudah
+- Tidak mengubah formula Sentiment Gauge (`2026-09-06_DashboardPage_v1.0.md` §5.1) — sudah
   dirancang benar di spesifikasi awal (skor 0–100, label Fear/Greed, disclaimer penamaan yang
   sudah tepat).
 - Tidak mengubah struktur tab market (US/Indonesia/Crypto) itu sendiri — hanya memastikan
@@ -81,11 +81,11 @@ chart) **tidak diubah** — hanya dirujuk sebagai konteks di mana penyempurnaan 
 
 | # | Masalah | Kategori | Merujuk Spesifikasi Awal |
 |---|---|---|---|
-| 1 | Tinggi card metrik tidak konsisten | Layout/CSS | `enhancement-design_DashboardPage_v1.md` §5.4 (Forex), §4.4 (Index Utama) |
-| 2 | Sector Performance kurang banyak sektor | Data/Konten | `enhancement-design_DashboardPage_v1.md` §5.2 |
-| 3 | Market Movers perlu ter-scope ketat per-tab | Logic/State | `enhancement-design_DashboardPage_v1.md` §5.3 |
-| 4 | Recent News perlu ikut ganti per-tab market | Logic/State | `enhancement-design_DashboardPage_v1.md` §4.6 |
-| 5 | Status strip perlu tampilkan semua movers, bukan cuma index | Widget/Data | `enhancement-design_DashboardPage_v1.md` §4.5 |
+| 1 | Tinggi card metrik tidak konsisten | Layout/CSS | `2026-09-06_DashboardPage_v1.0.md` §5.4 (Forex), §4.4 (Index Utama) |
+| 2 | Sector Performance kurang banyak sektor | Data/Konten | `2026-09-06_DashboardPage_v1.0.md` §5.2 |
+| 3 | Market Movers perlu ter-scope ketat per-tab | Logic/State | `2026-09-06_DashboardPage_v1.0.md` §5.3 |
+| 4 | Recent News perlu ikut ganti per-tab market | Logic/State | `2026-09-06_DashboardPage_v1.0.md` §4.6 |
+| 5 | Status strip perlu tampilkan semua movers, bukan cuma index | Widget/Data | `2026-09-06_DashboardPage_v1.0.md` §4.5 |
 
 ---
 
@@ -182,7 +182,7 @@ kepadatan ini sejak awal implementasi:
   dengan 1 sel kosong untuk tab US (11 sektor GICS).
 - Ukuran font label sektor dan persentase dikecilkan sedikit (`label` token, 11px) mengikuti
   prinsip dense layout yang sudah jadi standar project (lihat
-  `Environment/Enhancement-Design-1-UXVisual.md` §3.1), supaya 12 kotak tetap muat rapi tanpa
+  `Environment/2026-09-06_UXVisual_v1.0.md` §3.1), supaya 12 kotak tetap muat rapi tanpa
   scroll di panel yang sama.
 - Gradasi warna (dari v1 §5.2) dipertahankan — hijau/merah dengan intensitas mengikuti besaran
   `change_pct`, tidak berubah.
@@ -361,9 +361,9 @@ terbuka di §8.
 
 ## 9. Dokumen Terkait
 
-- `Environment/enhancement-design_DashboardPage_v1.md` — dokumen induk/spesifikasi awal seluruh
+- `Environment/2026-09-06_DashboardPage_v1.0.md` — dokumen induk/spesifikasi awal seluruh
   widget Dashboard
-- `Environment/Enhancement-Design-1-UXVisual.md` — design token & prinsip dense layout
+- `Environment/2026-09-06_UXVisual_v1.0.md` — design token & prinsip dense layout
 - `Documentation/Documentation-Program.md` §4.1–4.3 — fungsi backend existing yang direuse
   (`get_history()`, `get_multiple_snapshots()`, `get_news_for_symbol()`)
 - `Documentation/Documentation-Business.md` §5 — kebutuhan disclaimer, berlaku untuk Sentiment

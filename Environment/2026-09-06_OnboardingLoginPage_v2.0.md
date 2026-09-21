@@ -2,7 +2,7 @@
 
 > **Versi Dokumen:** 2.0 — revisi dari v1.1 (lampiran), fokus: penyesuaian design system untuk
 > tipografi **Plus Jakarta Sans** + revisi copy layar **Onboarding** dan **Login/Sign Up**
-> **Terkait:** `Environment/Enhancement-Design-1-UXVisual.md` §3 (Design Language),
+> **Terkait:** `Environment/2026-09-06_UXVisual_v1.0.md` §3 (Design Language),
 > §4.1–4.3 (Onboarding, Landing, Login/Sign Up)
 > **Dokumen sebelumnya:** v1.1 (lampiran pengguna, tidak disimpan di repo) — lihat §0 Changelog
 > **Referensi visual:** Mockup "Trading Monitor" (dark login), referensi struktur split-layout
@@ -22,7 +22,7 @@
 
 | Area | v1.1 | v2.0 |
 |---|---|---|
-| Referensi dokumen induk | Menyebut `Enhancement-Design-1-Visual-Business.md` | Dikoreksi ke nama file yang sebenarnya ada di repo: `Enhancement-Design-1-UXVisual.md` |
+| Referensi dokumen induk | Menyebut `Enhancement-Design-1-Visual-Business.md` | Dikoreksi ke nama file yang sebenarnya ada di repo: `2026-09-06_UXVisual_v1.0.md` |
 | Tipografi | Tidak disebutkan eksplisit (mewarisi default lama, `Inter`) | **Baru §2** — beralih ke `Plus Jakarta Sans`, dengan penyesuaian radius & border supaya selaras bentuk huruf yang lebih geometris-bulat |
 | Copy Onboarding (3 slide) | Deskriptif-fungsional ("Harga saham, crypto, dan index dalam satu dashboard.") | Direvisi jadi lebih benefit-led & ritmis, konsisten gaya CTA FinSight (lihat §4.2) |
 | Copy Login | Campur ID/EN (`Welcome Back`, tombol `Log In`) | **Diputuskan:** konsisten penuh Bahasa Indonesia — `Selamat Datang Kembali`, tombol `Masuk` (menutup pertanyaan terbuka §7 poin bahasa di v1.1) |
@@ -40,9 +40,9 @@ Requirement teknis-visual untuk 3 layar pertama pengguna baru:
 2. **Landing Page** (halaman publik/marketing) — struktur tidak berubah dari v1.1
 3. **Login / Sign Up** (UI shell, belum wired ke backend Auth) — **copy direvisi di v2.0**
 
-Sesuai `Enhancement-Design-1-UXVisual.md` (Non-Goals), dokumen ini **tidak** mengimplementasikan
+Sesuai `2026-09-06_UXVisual_v1.0.md` (Non-Goals), dokumen ini **tidak** mengimplementasikan
 logic autentikasi — form disiapkan sebagai UI shell. Wiring ke JWT menyusul sesuai
-`PRD/Documentation-Program.md` §7.5 dan `Environment/enhancement-system_JWTAuth.md`.
+`PRD/Documentation-Program.md` §7.5 dan `Environment/2026-09-06_JWTAuth_v1.0.md`.
 
 ---
 
@@ -50,7 +50,7 @@ logic autentikasi — form disiapkan sebagai UI shell. Wiring ke JWT menyusul se
 
 ### 2.1 Kenapa Disesuaikan
 
-`Plus Jakarta Sans` (dipakai sejak `Enhancement-Design-1-UXVisual.md` §3.1 untuk UI utama)
+`Plus Jakarta Sans` (dipakai sejak `2026-09-06_UXVisual_v1.0.md` §3.1 untuk UI utama)
 punya karakter huruf lebih **geometris dan bulat** dibanding `Inter` yang dipakai versi Tahap 2
 saat ini. Untuk 2 layar yang paling banyak tipografi besar (headline Onboarding, judul card
 Login/Sign Up), token warna & bentuk lama (dirancang untuk `Inter`) perlu sedikit penyesuaian
@@ -74,7 +74,7 @@ bentuk (radius) dan token border yang jarang dipakai di layar dashboard dense, t
 
 **Tidak berubah:** semua token warna (`canvas`, `panel`, `panel-hover`, `positive`, `negative`,
 `text-primary/secondary/muted`, `action-primary`), token `border` & `border-muted` untuk elemen
-dense (tabel, sidebar), dan font data (`JetBrains Mono`) — lihat `Enhancement-Design-1-UXVisual.md`
+dense (tabel, sidebar), dan font data (`JetBrains Mono`) — lihat `2026-09-06_UXVisual_v1.0.md`
 §3.2 untuk daftar lengkap token yang tetap berlaku.
 
 ### 2.3 Penerapan Token Baru per Layar
@@ -260,13 +260,13 @@ bukan hilang, hanya tidak lagi diekspos di UI end-user. Redaksi teknis lengkap u
 implementasi (tetap dicatat di sini, bukan di UI):
 
 > *Implementasi: token disimpan di `localStorage` (bukan httpOnly cookie) sebagai batasan
-> sementara rilis awal — lihat `Environment/enhancement-system_JWTAuth.md` §5 untuk detail risiko
+> sementara rilis awal — lihat `Environment/2026-09-06_JWTAuth_v1.0.md` §5 untuk detail risiko
 > & rencana migrasi.*
 
 **Alasan perubahan:** caption v1.1 transparan ke developer tapi berpotensi membingungkan
 end-user awam yang tidak familiar istilah `localStorage`/`httpOnly cookie`. Transparansi teknis
 tetap dipertahankan penuh — hanya dipindah ke lapisan dokumentasi (dokumen ini +
-`enhancement-system_JWTAuth.md`) alih-alih tampil sebagai microcopy di layar produksi.
+`2026-09-06_JWTAuth_v1.0.md`) alih-alih tampil sebagai microcopy di layar produksi.
 
 ---
 
@@ -302,8 +302,8 @@ tetap dipertahankan penuh — hanya dipindah ke lapisan dokumentasi (dokumen ini
 
 ## 9. Dokumen Terkait
 
-- `Environment/Enhancement-Design-1-UXVisual.md` — design token & inventaris 9 layar (dokumen induk; nama file dikoreksi dari referensi v1.1, lihat §0)
-- `Environment/Enhancement-Design-2-Technical.md` — implementasi teknis (struktur route, komponen)
-- `Environment/enhancement-system_JWTAuth.md` — status implementasi Auth JWT & catatan keamanan token (§5, direferensikan dari §6.3)
+- `Environment/2026-09-06_UXVisual_v1.0.md` — design token & inventaris 9 layar (dokumen induk; nama file dikoreksi dari referensi v1.1, lihat §0)
+- `Environment/2026-09-06_UXVisualTechnical_v1.0.md` — implementasi teknis (struktur route, komponen)
+- `Environment/2026-09-06_JWTAuth_v1.0.md` — status implementasi Auth JWT & catatan keamanan token (§5, direferensikan dari §6.3)
 - `PRD/Documentation-Business.md` §5 — kebutuhan disclaimer & kepatuhan
 - `PRD/Documentation-Program.md` §7.5 — status Auth JWT (belum diimplementasikan, hanya UI shell di sini)
