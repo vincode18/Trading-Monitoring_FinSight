@@ -11,6 +11,8 @@ export interface QuoteSnapshot {
   market_state: string | null;
   fetched_at: number;
   market_cap?: number | null;
+  year_high?: number | null;
+  year_low?: number | null;
 }
 
 export interface Candle {
@@ -103,6 +105,52 @@ export interface FearGreed {
   value: number | null;
   label: string;
   source?: string;
+}
+
+export interface VolumeMover {
+  symbol: string;
+  volume_ratio: number;
+  last_price: number | null;
+  change_pct: number | null;
+}
+
+export interface MACrossAlert {
+  symbol: string;
+  cross_type: 'golden' | 'death' | string;
+  ma20: number | null;
+  ma50: number | null;
+}
+
+export interface EarningsCalendarItem {
+  symbol: string;
+  company_name?: string | null;
+  earnings_date: string;
+  timing?: string | null;
+  market_cap?: number | null;
+  eps_estimate?: number | null;
+  reported_eps?: number | null;
+  surprise_pct?: number | null;
+  event_name?: string | null;
+  is_watchlist?: boolean;
+  raw_available: boolean;
+}
+
+export interface SentimentScore {
+  symbol: string;
+  score: number;
+  label: string;
+  components: Record<string, number>;
+  disclaimer?: string;
+}
+
+export interface SectorPerformance {
+  market: string;
+  sectors: Array<{
+    name: string;
+    avg_change_pct: number | null;
+    symbols: string[];
+    count: number;
+  }>;
 }
 
 export type WatchlistCategory = 'my' | 'tech' | 'crypto' | 'forex';

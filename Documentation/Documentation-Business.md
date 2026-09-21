@@ -1,9 +1,10 @@
 # Documentation - Business
-## AI Trading Dashboard
+## AI Trading Dashboard (FinSight)
 
-> **Versi Dokumen:** 1.0
-> **Terakhir Diperbarui:** 5 September 2026
+> **Versi Dokumen:** 1.1
+> **Terakhir Diperbarui:** 7 September 2026
 > **Audiens:** Pemilik produk, tim bisnis, calon investor, tim operasional
+> **Terkait desain:** `PRD/Enhancement-Design/PRD-D-003_enhancement-design_DashboardPage_v1.md` + patch `design_DashboardPage_v1.1.md`
 
 ---
 
@@ -114,19 +115,68 @@ Ini adalah area yang **di luar keahlian teknis** dan perlu masukan profesional h
 4. **Legalitas badan usaha:** Diperlukan untuk mendaftar akun merchant Midtrans (biasanya butuh NIB/CV/PT).
 5. **Kebijakan refund:** Perlu ditetapkan tertulis (misal: tidak ada refund untuk periode berjalan, atau prorata).
 
+### 5.1 Widget Dashboard yang Wajib Berbahasa Fakta (bukan rekomendasi)
+
+Sesuai `PRD-D-003`, widget berikut menampilkan **fakta riset/teknikal** saja — UI & copy produk **tidak boleh** memakai bahasa “beli/jual/rekomendasi”:
+
+| Widget | Bahasa yang diizinkan | Bahasa yang dihindari |
+|---|---|---|
+| Market Sentiment Score | Skor internal 0–100 + label Extreme Fear→Extreme Greed (kalkulasi sendiri, **bukan** CNN Fear & Greed) | “Waktunya beli/jual” |
+| Top Gainers / Losers / Volume Movers | Peringkat `%` atau rasio volume | Saran posisi |
+| Golden / Death Cross | “Persilangan MA20/MA50 terdeteksi” | Sinyal entry/exit |
+| Earnings Calendar | Tanggal laporan (jika tersedia dari sumber data) | Prediksi arah harga |
+
+Disclaimer singkat wajib tampil di halaman Dashboard (alat bantu riset, bukan nasihat keuangan).
+
 ---
 
-## 6. Roadmap Bisnis (Selaras dengan Roadmap Produk)
+## 6. Kapabilitas Dashboard Riset (Tahap 2) — PRD-D-003
+
+Dashboard web FinSight dikelompokkan per **market tab**: **US Market**, **Indonesia**, **Crypto**.
+
+| Kapabilitas | Manfaat bisnis | Catatan data |
+|---|---|---|
+| Ticker bar market-aware + scroll | Kesan “terminal” live-ish | Index + top 15 movers `\|change_pct\|` (v1.1) |
+| Index / Forex / Sentiment (equal height) | Fokus satu baris metrik | Indonesia: `USDIDR=X` + `SGDIDR=X` |
+| Sentiment Gauge | Ringkas “mood” market hari ini | Formula internal 4 komponen |
+| Sector heatmap | Bandingkan kekuatan sektor | 11 GICS / 12 IDX / 6 crypto categories |
+| Movers (Gainers/Losers/Volume) | Scan cepat peluang riset | Pool sektor per-tab saja (bukan watchlist) |
+| Recent News per market | Konteks berita ikut tab | `GET /api/news/market/{market}` |
+| Earnings Calendar | Ringkasan 7 hari + halaman detail | Card Dashboard + `/analysis/earnings-calendar` (US Calendars / IDX hybrid) |
+| MA Cross alerts | Sorot perubahan tren teknikal | Fakta silang MA saja |
+| Watchlist snapshot | Pintasan ke analisis milik user | Lintas tab market |
+
+---
+
+## 7. Roadmap Bisnis (Selaras dengan Roadmap Produk)
 
 | Fase | Fokus Bisnis | Output |
 |---|---|---|
 | **Tahap 1** | Validasi produk (apakah orang mau pakai dashboard ini) | Dashboard lokal, dites internal/beta terbatas |
-| **Tahap 2** | Validasi kesiapan teknis multi-user | Web app live, kumpulkan early user (gratis dulu) untuk feedback |
+| **Tahap 2** | Validasi kesiapan teknis multi-user + dashboard riset multi-market | Web app live, auth, watchlist per-akun, dashboard PRD-D-003 |
 | **Tahap 3** | Mulai monetisasi | Aktifkan tier berbayar, integrasi Midtrans + Transfer Bank, mulai akuisisi pelanggan berbayar |
+
+### 7.1 Readiness Checklist — Dashboard & Go-Live Soft
+
+| Area | Status | Catatan |
+|---|---|---|
+| Layout full-width + market tabs | ✅ Siap (setelah impl PRD-D-003) | US / Indonesia / Crypto |
+| Ticker market-aware + animasi scroll | ✅ Siap | |
+| Forex / Movers / News sort | ✅ Siap | |
+| Sentiment / Sector / MA Cross / Earnings | ✅ Siap (v1 + v1.1) | Earnings IDX sering kosong |
+| Dashboard v1.1 (equal cards, baskets, movers scope, market news, ticker movers) | ✅ Siap | Defaults: SGDIDR secondary, ticker limit 15 |
+| Disclaimer widget sinyal | ✅ Siap di UI + §5.1 | Review hukum masih terbuka |
+| Auth JWT + cookie session | ✅ Siap | Migrasi production HTTPS/`Secure` menyusul |
+| Watchlist per-akun (DB) | ✅ Siap | |
+| Monetisasi Midtrans / Transfer Bank | ❌ Belum | Tahap 3 |
+| S&K + Privasi + badan usaha | ❌ Belum | Blocker pembayaran publik |
+| API data berbayar (ganti yfinance) | ❌ Belum | Skala user tinggi |
+
+**Kesimpulan readiness:** cocok untuk **early user / beta riset gratis**. **Belum siap** onboarding pelanggan berbayar sampai Tahap 3 + legal (§5) selesai.
 
 ---
 
-## 7. Pertanyaan Terbuka untuk Tim Bisnis *(Perlu Keputusan)*
+## 8. Pertanyaan Terbuka untuk Tim Bisnis *(Perlu Keputusan)*
 
 - [ ] Apakah harga final per tier? (perlu riset kompetitor & survei harga)
 - [ ] Apakah ada masa trial gratis untuk tier Pro/Premium?
@@ -134,3 +184,4 @@ Ini adalah area yang **di luar keahlian teknis** dan perlu masukan profesional h
 - [ ] Siapa yang bertanggung jawab sebagai tim verifikasi transfer bank (berapa orang, jam operasional)?
 - [ ] Apakah perlu program afiliasi/referral untuk akuisisi pengguna?
 - [ ] Badan usaha apa yang akan dipakai untuk mendaftar Midtrans (PT/CV/perorangan)?
+- [ ] Apakah basket sektor heatmap perlu dikurasi ulang oleh analis (saat ini starter ETF/IDX)?

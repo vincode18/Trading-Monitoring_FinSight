@@ -343,3 +343,129 @@ def compute_support_resistance(df: pd.DataFrame, lookback: int = 60) -> dict:
     r2 = round(resistances_above[1], 6) if len(resistances_above) > 1 else None
 
     return {"support": [s1, s2], "resistance": [r1, r2]}
+
+
+def volume_ratio(df: pd.DataFrame, window: int = 20) -> float | None:
+    """Rasio volume hari terakhir vs rata-rata `window` hari sebelumnya."""
+    if df is None or df.empty or "Volume" not in df.columns or len(df) < 2:
+        return None
+    volume = df["Volume"].astype(float)
+    latest = float(volume.iloc[-1])
+    if len(volume) > window:
+        avg = float(volume.iloc[-(window + 1) : -1].mean())
+    else:
+        avg = float(volume.iloc[:-1].mean())
+    if not avg or avg != avg:
+        return None
+    return latest / avg
+
+
+def detect_ma_cross(df: pd.DataFrame) -> str | None:
+    """
+    Deteksi Golden/Death Cross MA20 vs MA50 pada dua bar terakhir.
+    Return: 'golden' | 'death' | None — fakta teknikal, bukan rekomendasi.
+    """
+    if df is None or df.empty or len(df) < 2:
+        return None
+    if "MA20" not in df.columns or "MA50" not in df.columns:
+        return None
+    today = df.iloc[-1]
+    yesterday = df.iloc[-2]
+    ma20_t = _safe_float(today.get("MA20"))
+    ma50_t = _safe_float(today.get("MA50"))
+    ma20_y = _safe_float(yesterday.get("MA20"))
+    ma50_y = _safe_float(yesterday.get("MA50"))
+    if None in (ma20_t, ma50_t, ma20_y, ma50_y):
+        return None
+    if ma20_t > ma50_t and ma20_y <= ma50_y:
+        return "golden"
+    if ma20_t < ma50_t and ma20_y >= ma50_y:
+        return "death"
+    return None
+
+
+def volatility_score(df: pd.DataFrame, window: int = 20) -> float | None:
+    """100 - normalisasi rolling std close (window). Skala kasar 0–100."""
+    if df is None or df.empty or "Close" not in df.columns or len(df) < window:
+        return None
+    close = df["Close"].astype(float)
+    std = float(close.tail(window).std())
+    mean = float(close.tail(window).mean()) or 1.0
+    cv = (std / abs(mean)) * 100.0
+    # CV tinggi → skor volatilitas rendah di sentimen (lebih “fear”)
+    return _clamp(100.0 - cv * 5.0)
+
+
+def range_score(last_price: float | None, year_high: float | None, year_low: float | None) -> float | None:
+    """Posisi harga dalam rentang 52w: (price - low) / (high - low) * 100."""
+    if last_price is None or year_high is None or year_low is None:
+        return None
+    span = year_high - year_low
+    if span <= 0:
+        return None
+    return _clamp(((last_price - year_low) / span) * 100.0)
+
+
+def sentiment_label(score: float) -> str:
+    if score < 25:
+        return "Extreme Fear"
+    if score < 45:
+        return "Fear"
+    if score < 55:
+        return "Neutral"
+    if score < 75:
+        return "Greed"
+    return "Extreme Greed"
+
+
+def sentiment_score(
+    df: pd.DataFrame,
+    last_price: float | None = None,
+    year_high: float | None = None,
+    year_low: float | None = None,
+) -> dict:
+    """
+    Market Sentiment Score 0–100 (rata-rata RSI, Trend, Volatility, Range).
+    Kalkulasi internal — bukan Fear & Greed berlisensi CNN.
+    """
+    empty = {
+        "score": 50.0,
+        "label": "Neutral",
+        "components": {},
+        "disclaimer": "Internal Market Sentiment Score — not financial advice.",
+    }
+    if df is None or df.empty:
+        return empty
+
+    ind = add_all_indicators(df) if "MA20" not in df.columns else df
+    last = ind.iloc[-1]
+    components: dict[str, float] = {}
+
+    rsi_val = _safe_float(last.get("RSI14"))
+    if rsi_val is not None:
+        components["rsi"] = _clamp(rsi_val)
+
+    ma20 = _safe_float(last.get("MA20"))
+    ma50 = _safe_float(last.get("MA50"))
+    if ma20 is not None and ma50 is not None:
+        components["trend"] = 100.0 if ma20 > ma50 else 0.0
+
+    vol = volatility_score(ind)
+    if vol is not None:
+        components["volatility"] = vol
+
+    price = last_price if last_price is not None else _safe_float(last.get("Close"))
+    rng = range_score(price, year_high, year_low)
+    if rng is not None:
+        components["range"] = rng
+
+    if not components:
+        return empty
+
+    score = round(sum(components.values()) / len(components), 2)
+    return {
+        "score": score,
+        "label": sentiment_label(score),
+        "components": {k: round(v, 2) for k, v in components.items()},
+        "disclaimer": "Internal Market Sentiment Score — not financial advice.",
+    }

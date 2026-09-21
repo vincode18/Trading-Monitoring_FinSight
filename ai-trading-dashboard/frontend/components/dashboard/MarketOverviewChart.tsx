@@ -1,29 +1,26 @@
 'use client';
 
 import useSWR from 'swr';
-import { useState } from 'react';
 import { createChart, ColorType } from 'lightweight-charts';
 import { useEffect, useRef } from 'react';
 import { api } from '@/lib/api';
 
-const INDEX_OPTIONS = [
-  { symbol: '^GSPC', label: 'S&P 500' },
-  { symbol: '^DJI', label: 'DOW 30' },
-  { symbol: '^IXIC', label: 'NASDAQ' },
-  { symbol: 'BTC-USD', label: 'BTC' },
-];
-
-export function MarketOverviewChart() {
-  const [symbol, setSymbol] = useState('^GSPC');
-  const { data } = useSWR(['overview-chart', symbol], () =>
-    api.getChart(symbol, '3mo', '1d')
-  );
+export function MarketOverviewChart({
+  symbol,
+  label,
+}: {
+  symbol: string;
+  label?: string;
+}) {
+  const { data } = useSWR(['overview-chart', symbol], () => api.getChart(symbol, '3mo', '1d'), {
+    refreshInterval: 60_000,
+  });
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!ref.current || !data?.candles?.length) return;
     const chart = createChart(ref.current, {
-      height: 180,
+      height: 200,
       width: ref.current.clientWidth,
       layout: {
         background: { type: ColorType.Solid, color: '#161B22' },
@@ -64,19 +61,12 @@ export function MarketOverviewChart() {
     <div className="rounded-md border border-border bg-panel p-4">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-h2 text-text-primary">Market Overview</h2>
-        <select
-          value={symbol}
-          onChange={(e) => setSymbol(e.target.value)}
-          className="rounded border border-border bg-canvas px-2 py-1 text-xs text-text-primary"
-        >
-          {INDEX_OPTIONS.map((o) => (
-            <option key={o.symbol} value={o.symbol}>
-              {o.label}
-            </option>
-          ))}
-        </select>
+        <span className="text-xs text-text-muted">{label ?? symbol}</span>
       </div>
       <div ref={ref} className="w-full" />
+      {!data?.candles?.length && (
+        <p className="py-8 text-center text-xs text-text-muted">Memuat chart...</p>
+      )}
     </div>
   );
 }

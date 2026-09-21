@@ -114,7 +114,7 @@ export default function LandingPage() {
             FinSight adalah alat bantu riset pasar, bukan nasihat keuangan berlisensi. Semua
             keputusan investasi/trading sepenuhnya tanggung jawab pengguna.
           </p>
-          <p>© {new Date().getFullYear()} FinSight. Data via Yahoo Finance.</p>
+          <p>© {new Date().getFullYear()} ViandraLabs. </p>
         </div>
       </footer>
     </>

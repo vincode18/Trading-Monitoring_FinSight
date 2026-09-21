@@ -19,8 +19,16 @@ export default function AnalysisDetailPage() {
   const { watchlist, setSelectedSymbol } = useWatchlist();
 
   useEffect(() => {
+    if (symbol.toLowerCase() === 'earnings-calendar') {
+      router.replace('/analysis/earnings-calendar');
+      return;
+    }
     setSelectedSymbol(symbol);
-  }, [symbol, setSelectedSymbol]);
+  }, [symbol, setSelectedSymbol, router]);
+
+  if (symbol.toLowerCase() === 'earnings-calendar') {
+    return null;
+  }
 
   const { data: score } = useSWR(['score-detail', symbol], () => api.getAnalysisScore(symbol));
   const { data: radar } = useSWR(['radar', symbol], () => api.getRadar(symbol));

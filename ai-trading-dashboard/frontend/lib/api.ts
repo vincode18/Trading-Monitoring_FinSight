@@ -1,13 +1,18 @@
 import {
   AnalysisScore,
   ChartData,
+  EarningsCalendarItem,
   FearGreed,
+  MACrossAlert,
   MarketSummary,
   NewsItem,
   QuoteSnapshot,
   RadarScore,
+  SectorPerformance,
+  SentimentScore,
   SupportResistance,
   SymbolSearchResult,
+  VolumeMover,
 } from '@/types/market';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -111,13 +116,64 @@ export const api = {
   searchSymbol: (query: string) =>
     fetchJson<SymbolSearchResult[]>(`/api/market/search?q=${encodeURIComponent(query)}`),
 
-  getOverview: () => fetchJson<QuoteSnapshot[]>('/api/market/overview'),
+  getOverview: (symbols?: string[]) => {
+    const q =
+      symbols && symbols.length
+        ? `?symbols=${encodeURIComponent(symbols.join(','))}`
+        : '';
+    return fetchJson<QuoteSnapshot[]>(`/api/market/overview${q}`);
+  },
 
-  getTopGainers: (symbols: string[], limit = 5) =>
-    fetchJson<QuoteSnapshot[]>(`/api/market/top-gainers?limit=${limit}`, {
+  getTopGainers: (symbols: string[], limit = 5, order: 'asc' | 'desc' = 'desc') =>
+    fetchJson<QuoteSnapshot[]>(`/api/market/top-gainers?limit=${limit}&order=${order}`, {
       method: 'POST',
       body: JSON.stringify({ symbols }),
     }),
+
+  getVolumeMovers: (symbols: string[], limit = 10) =>
+    fetchJson<VolumeMover[]>('/api/market/volume-movers?limit=' + limit, {
+      method: 'POST',
+      body: JSON.stringify({ symbols }),
+    }),
+
+  getSentiment: (symbol: string) =>
+    fetchJson<SentimentScore>(`/api/market/sentiment/${encodeURIComponent(symbol)}`),
+
+  getSectors: (market: string) =>
+    fetchJson<SectorPerformance>(`/api/market/sectors/${encodeURIComponent(market)}`),
+
+  getMACrossAlerts: (symbols: string[]) =>
+    fetchJson<MACrossAlert[]>('/api/market/ma-cross-alerts', {
+      method: 'POST',
+      body: JSON.stringify({ symbols }),
+    }),
+
+  getEarningsCalendar: (symbols: string[], days = 7) =>
+    fetchJson<EarningsCalendarItem[]>(`/api/market/earnings-calendar?days=${days}`, {
+      method: 'POST',
+      body: JSON.stringify({ symbols }),
+    }),
+
+  getMarketEarningsCalendar: (opts: {
+    market: string;
+    daysAhead?: number;
+    limit?: number;
+    onlyUnreported?: boolean;
+    start?: string;
+    end?: string;
+    watchlist?: string[];
+  }) => {
+    const params = new URLSearchParams({
+      market: opts.market,
+      days_ahead: String(opts.daysAhead ?? 7),
+      limit: String(opts.limit ?? 50),
+      only_unreported: String(opts.onlyUnreported ?? true),
+    });
+    if (opts.start) params.set('start', opts.start);
+    if (opts.end) params.set('end', opts.end);
+    if (opts.watchlist?.length) params.set('watchlist', opts.watchlist.join(','));
+    return fetchJson<EarningsCalendarItem[]>(`/api/market/earnings-calendar?${params}`);
+  },
 
   getMarketSummary: () => fetchJson<MarketSummary>('/api/market/summary'),
 
@@ -127,6 +183,9 @@ export const api = {
     fetchJson<ChartData>(`/api/chart/${symbol}?period=${period}&interval=${interval}`),
 
   getNews: (symbol: string) => fetchJson<NewsItem[]>(`/api/news/${symbol}`),
+
+  getMarketNews: (market: string, limit = 8) =>
+    fetchJson<NewsItem[]>(`/api/news/market/${encodeURIComponent(market)}?limit=${limit}`),
 
   getAnalysisScore: (symbol: string) =>
     fetchJson<AnalysisScore>(`/api/analysis/score/${encodeURIComponent(symbol)}`),

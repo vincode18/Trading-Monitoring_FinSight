@@ -17,6 +17,8 @@ class QuoteSnapshotResponse(BaseModel):
     market_state: str | None
     fetched_at: float
     market_cap: float | None = None
+    year_high: float | None = None
+    year_low: float | None = None
 
 
 class CandleResponse(BaseModel):
@@ -133,3 +135,44 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
     expires_in: int
     user: UserResponse | None = None
+
+
+class VolumeMoverResponse(BaseModel):
+    symbol: str
+    volume_ratio: float
+    last_price: float | None = None
+    change_pct: float | None = None
+
+
+class MACrossAlertResponse(BaseModel):
+    symbol: str
+    cross_type: str  # golden | death
+    ma20: float | None = None
+    ma50: float | None = None
+
+
+class EarningsCalendarResponse(BaseModel):
+    symbol: str
+    company_name: str | None = None
+    earnings_date: str
+    timing: str | None = None
+    market_cap: float | None = None
+    eps_estimate: float | None = None
+    reported_eps: float | None = None
+    surprise_pct: float | None = None
+    event_name: str | None = None
+    is_watchlist: bool = False
+    raw_available: bool = True
+
+
+class SentimentScoreResponse(BaseModel):
+    symbol: str
+    score: float
+    label: str
+    components: dict[str, float] = {}
+    disclaimer: str = ""
+
+
+class SectorPerformanceResponse(BaseModel):
+    market: str
+    sectors: list[dict]
