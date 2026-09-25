@@ -34,7 +34,7 @@ export default function WatchlistPage() {
         <div>
           <h1 className="text-h1 text-text-primary">Watchlist</h1>
           <p className="mt-1 text-sm text-text-secondary">
-            Kelompokkan simbol dan buka chart dengan satu klik.
+            Group symbols and open charts in one click.
           </p>
         </div>
         <button

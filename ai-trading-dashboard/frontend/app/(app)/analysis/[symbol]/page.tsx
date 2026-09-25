@@ -116,14 +116,14 @@ export default function AnalysisDetailPage() {
       <div className="rounded-md border border-border bg-panel p-4">
         <h3 className="text-h2 text-text-primary">Summary</h3>
         <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-          {chart?.signal_summary || 'Data indikator belum lengkap.'} Harga terakhir referensi MA50:{' '}
+          {chart?.signal_summary || 'Indicator data incomplete.'} Latest price vs MA50:{' '}
           {formatPrice(last?.ma50 ?? null)}.
         </p>
         <div className="mt-4 grid gap-3 md:grid-cols-3">
           {[
-            { t: 'Short Term', d: 'Fokus RSI & MACD harian.' },
-            { t: 'Mid Term', d: 'Pantau silang MA20/MA50.' },
-            { t: 'Long Term', d: 'Referensi MA100/MA200.' },
+            { t: 'Short Term', d: 'Focus on daily RSI & MACD.' },
+            { t: 'Mid Term', d: 'Watch MA20/MA50 crosses.' },
+            { t: 'Long Term', d: 'Reference MA100/MA200.' },
           ].map((r) => (
             <div key={r.t} className="rounded border border-border-muted bg-canvas p-3">
               <div className="text-xs font-semibold text-text-primary">{r.t}</div>
@@ -132,7 +132,7 @@ export default function AnalysisDetailPage() {
           ))}
         </div>
         <p className="mt-3 text-[10px] text-text-muted">
-          Panel di atas adalah ringkasan kondisi teknikal untuk riset — bukan rekomendasi investasi.
+          The panel above is a technical condition summary for research — not investment recommendations.
         </p>
       </div>
     </div>

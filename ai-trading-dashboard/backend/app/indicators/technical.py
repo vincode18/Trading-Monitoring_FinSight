@@ -296,10 +296,10 @@ def compute_radar_scores(df: pd.DataFrame) -> dict:
 
 def compute_support_resistance(df: pd.DataFrame, lookback: int = 60) -> dict:
     """
-    Estimasi 2 level support & 2 resistance dari local min/max Low/High
+    Estimasi 3 level support & 3 resistance dari local min/max Low/High
     pada jendela `lookback` bar terakhir.
     """
-    empty = {"support": [None, None], "resistance": [None, None]}
+    empty = {"support": [None, None, None], "resistance": [None, None, None]}
     if df is None or df.empty or "Low" not in df.columns or "High" not in df.columns:
         return empty
 
@@ -323,26 +323,43 @@ def compute_support_resistance(df: pd.DataFrame, lookback: int = 60) -> dict:
     resistances_above = sorted({r for r in local_maxs if r > close})
 
     # Fallback: pakai ekstrem absolut di jendela jika local extrema kurang
-    if len(supports_below) < 2:
+    if len(supports_below) < 3:
         sorted_lows = sorted(set(lows))
         for lv in sorted_lows:
             if lv < close and lv not in supports_below:
                 supports_below.append(lv)
         supports_below = sorted(supports_below, reverse=True)
 
-    if len(resistances_above) < 2:
+    if len(resistances_above) < 3:
         sorted_highs = sorted(set(highs), reverse=True)
         for hv in sorted_highs:
             if hv > close and hv not in resistances_above:
                 resistances_above.append(hv)
         resistances_above = sorted(resistances_above)
 
-    s1 = round(supports_below[0], 6) if len(supports_below) > 0 else None
-    s2 = round(supports_below[1], 6) if len(supports_below) > 1 else None
-    r1 = round(resistances_above[0], 6) if len(resistances_above) > 0 else None
-    r2 = round(resistances_above[1], 6) if len(resistances_above) > 1 else None
+    support = [
+        round(supports_below[i], 6) if len(supports_below) > i else None
+        for i in range(3)
+    ]
+    resistance = [
+        round(resistances_above[i], 6) if len(resistances_above) > i else None
+        for i in range(3)
+    ]
 
-    return {"support": [s1, s2], "resistance": [r1, r2]}
+    return {"support": support, "resistance": resistance}
+
+
+def atr(df: pd.DataFrame, period: int = 14) -> pd.Series:
+    """Average True Range (Wilder)."""
+    high, low, close = df["High"], df["Low"], df["Close"]
+    prev = close.shift(1)
+    tr = pd.concat([(high - low), (high - prev).abs(), (low - prev).abs()], axis=1).max(axis=1)
+    return tr.ewm(alpha=1 / period, adjust=False, min_periods=period).mean()
+
+
+def smma(series: pd.Series, period: int) -> pd.Series:
+    """Smoothed moving average (Alligator / Wilder-style)."""
+    return series.ewm(alpha=1 / period, adjust=False, min_periods=period).mean()
 
 
 def volume_ratio(df: pd.DataFrame, window: int = 20) -> float | None:

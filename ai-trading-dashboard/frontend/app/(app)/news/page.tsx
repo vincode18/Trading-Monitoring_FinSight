@@ -32,7 +32,7 @@ export default function NewsPage() {
     <div className="mx-auto max-w-3xl px-5 py-5">
       <h1 className="text-h1 text-text-primary">News</h1>
       <p className="mt-1 text-sm text-text-secondary">
-        Headline terkait pasar dan simbol di watchlist kamu.
+        Headlines related to the market and symbols on your watchlist.
       </p>
 
       <div className="mt-4 flex flex-wrap gap-1 border-b border-border">
@@ -62,7 +62,7 @@ export default function NewsPage() {
         {!isLoading &&
           (news ?? []).map((item, i) => <NewsCard key={i} item={item} />)}
         {!isLoading && !news?.length && (
-          <p className="py-12 text-center text-sm text-text-muted">Tidak ada berita.</p>
+          <p className="py-12 text-center text-sm text-text-muted">No news.</p>
         )}
       </div>
     </div>

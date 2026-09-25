@@ -16,7 +16,7 @@ export function ForexStrip({ pairs }: { pairs: string[] }) {
     return (
       <div className="flex h-full min-h-[140px] flex-col justify-center rounded-md border border-border bg-panel px-4 py-3">
         <div className="text-[10px] font-medium uppercase tracking-wide text-text-muted">Forex</div>
-        <p className="mt-2 text-xs text-text-muted">Tidak relevan untuk tab ini.</p>
+        <p className="mt-2 text-xs text-text-muted">Not relevant for this tab.</p>
       </div>
     );
   }
@@ -42,7 +42,7 @@ export function ForexStrip({ pairs }: { pairs: string[] }) {
             </div>
           </div>
         ))}
-        {!data?.length && <p className="text-xs text-text-muted">Memuat kurs...</p>}
+        {!data?.length && <p className="text-xs text-text-muted">Loading FX rates...</p>}
       </div>
     </div>
   );

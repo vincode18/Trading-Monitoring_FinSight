@@ -58,7 +58,7 @@ export function MoversPanel({ symbols, market }: { symbols: string[]; market: st
       {tab !== 'volume' && (
         <div className="space-y-1">
           {(tab === 'gainers' ? gLoad : lLoad) && !(tab === 'gainers' ? gainers : losers)?.length && (
-            <p className="py-6 text-center text-xs text-text-muted">Memuat...</p>
+            <p className="py-6 text-center text-xs text-text-muted">Loading...</p>
           )}
           {(tab === 'gainers' ? gainers : losers)?.map((q) => (
             <Link
@@ -88,11 +88,11 @@ export function MoversPanel({ symbols, market }: { symbols: string[]; market: st
       {tab === 'volume' && (
         <div className="space-y-1">
           {vLoad && !volume?.length && (
-            <p className="py-6 text-center text-xs text-text-muted">Memuat...</p>
+            <p className="py-6 text-center text-xs text-text-muted">Loading...</p>
           )}
           {!vLoad && !volume?.length && (
             <p className="py-6 text-center text-xs text-text-muted">
-              Tidak ada simbol dengan rasio volume ≥ 1.5×.
+              No symbols with volume ratio ≥ 1.5×.
             </p>
           )}
           {volume?.map((v) => (

@@ -16,7 +16,7 @@ export default function LoginPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-canvas via-canvas/40 to-transparent" />
         <p className="absolute bottom-12 left-10 right-10 text-lg font-semibold leading-snug text-text-primary">
-          &ldquo;Masuk kembali — watchlist dan riset pasar Anda siap dilanjutkan.&rdquo;
+          &ldquo;Sign back in — your watchlist and market research are ready to continue.&rdquo;
         </p>
       </div>
 

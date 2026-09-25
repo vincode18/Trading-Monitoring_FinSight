@@ -9,7 +9,8 @@ import { SymbolHeader } from '@/components/SymbolHeader';
 import { CandlestickChart } from '@/components/CandlestickChart';
 import { SignalSummary } from '@/components/SignalSummary';
 import { TimeframeToolbar } from '@/components/chart/TimeframeToolbar';
-import { formatPrice } from '@/lib/format';
+import { GlobalSearchTrigger } from '@/components/GlobalSearch/GlobalSearchTrigger';
+import Link from 'next/link';
 
 export default function ChartPage() {
   const params = useParams();
@@ -24,11 +25,19 @@ export default function ChartPage() {
   const [showMa, setShowMa] = useState(true);
 
   useEffect(() => {
+    if (paramSymbol?.toLowerCase() === 'war-room') {
+      router.replace('/chart/war-room');
+      return;
+    }
     if (!paramSymbol && symbol) {
       router.replace(`/chart/${encodeURIComponent(symbol)}`);
     }
     if (paramSymbol) setSelectedSymbol(paramSymbol);
   }, [paramSymbol, symbol, router, setSelectedSymbol]);
+
+  if (paramSymbol?.toLowerCase() === 'war-room') {
+    return null;
+  }
 
   const { data: quotes } = useSWR(
     symbol ? ['chart-quote', symbol] : null,
@@ -37,48 +46,36 @@ export default function ChartPage() {
   );
   const quote = quotes?.[0] ?? null;
 
-  const { data: chartData, isLoading } = useSWR(
+  const { data: chartData, error, isLoading } = useSWR(
     symbol ? ['chart', symbol, period, interval] : null,
     () => api.getChart(symbol as string, period, interval),
     { refreshInterval: 30_000 }
   );
-
-  const lastInd = chartData?.indicators?.[chartData.indicators.length - 1];
-
   return (
-    <div className="mx-auto max-w-7xl space-y-4 px-5 py-5">
+    <div className="w-full space-y-4 px-6 py-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-h1 text-text-primary">Chart</h1>
-          <select
-            className="mt-2 rounded border border-border bg-panel px-2 py-1.5 font-mono text-xs text-text-primary"
-            value={symbol ?? ''}
-            onChange={(e) => router.push(`/chart/${encodeURIComponent(e.target.value)}`)}
-          >
-            {watchlist.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-        </div>
-        {lastInd && (
-          <div className="flex gap-4 rounded-md border border-border bg-panel px-4 py-2 text-xs">
-            <div>
-              <span className="text-text-muted">MA50 </span>
-              <span className="font-mono text-text-primary">{formatPrice(lastInd.ma50)}</span>
-            </div>
-            <div>
-              <span className="text-text-muted">MA200 </span>
-              <span className="font-mono text-text-primary">
-                {formatPrice(lastInd.ma200 ?? null)}
-              </span>
-            </div>
-          </div>
-        )}
+        <h1 className="text-h1 text-text-primary">Chart</h1>
+        <Link
+          href="/chart/war-room"
+          className="rounded border border-border bg-panel px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:border-positive/40 hover:text-positive"
+        >
+          ⊞ War Room
+        </Link>
       </div>
 
-      {symbol && <SymbolHeader quote={quote} loading={!quote} />}
+      <GlobalSearchTrigger variant="wide" />
+
+      {symbol && (
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <SymbolHeader quote={quote} loading={!quote} />
+          <Link
+            href={`/analysis/overview?symbol=${encodeURIComponent(symbol)}`}
+            className="rounded border border-border bg-panel px-3 py-2 text-xs font-medium text-text-secondary transition-colors hover:border-positive/40 hover:text-positive"
+          >
+            Analysis Detail →
+          </Link>
+        </div>
+      )}
 
       <TimeframeToolbar
         period={period}
@@ -94,8 +91,13 @@ export default function ChartPage() {
 
       {isLoading && !chartData && (
         <div className="flex h-64 items-center justify-center text-sm text-text-muted">
-          Memuat grafik...
+          Loading chart...
         </div>
+      )}
+      {error && !chartData && (
+        <p className="rounded border border-negative/30 bg-negative/10 px-3 py-2 text-xs text-negative">
+          Failed to load chart data for this period.
+        </p>
       )}
       {chartData && (
         <>

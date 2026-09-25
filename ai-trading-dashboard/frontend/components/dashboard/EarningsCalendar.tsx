@@ -15,7 +15,7 @@ function companyInitials(name: string | null | undefined, symbol: string) {
 
 function formatShortDate(iso: string) {
   const d = new Date(iso);
-  return d.toLocaleDateString('id-ID', {
+  return d.toLocaleDateString('en-US', {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
@@ -44,7 +44,7 @@ export function EarningsCalendar({ market }: { market: MarketId }) {
       <div className="rounded-md border border-border bg-panel p-4">
         <h2 className="text-h2 text-text-primary">Earnings Calendar</h2>
         <p className="mt-3 text-xs text-text-muted">
-          Earnings tidak relevan untuk tab Crypto.
+          Earnings are not relevant for the Crypto tab.
         </p>
       </div>
     );
@@ -55,17 +55,17 @@ export function EarningsCalendar({ market }: { market: MarketId }) {
       <div className="flex items-start justify-between gap-2">
         <div>
           <h2 className="text-h2 text-text-primary">Earnings Calendar</h2>
-          <p className="mt-1 text-[10px] text-text-muted">7 hari ke depan · belum dilaporkan</p>
+          <p className="mt-1 text-[10px] text-text-muted">Next 7 days · not yet reported</p>
         </div>
       </div>
 
       <div className="mt-3 flex-1 space-y-2">
         {isLoading && !data && (
-          <p className="py-6 text-center text-xs text-text-muted">Memuat...</p>
+          <p className="py-6 text-center text-xs text-text-muted">Loading...</p>
         )}
         {!isLoading && !data?.length && (
           <p className="py-6 text-center text-xs text-text-muted">
-            Tidak ada jadwal earnings dalam 7 hari ke depan.
+            No earnings scheduled in the next 7 days.
           </p>
         )}
         {(data ?? []).map((e) => (

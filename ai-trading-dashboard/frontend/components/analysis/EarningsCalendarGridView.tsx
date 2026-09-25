@@ -72,8 +72,8 @@ export function EarningsCalendarGridView({
           ‹ Prev
         </button>
         <span className="text-[10px] text-text-muted">
-          {days[0]?.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} –{' '}
-          {days[days.length - 1]?.toLocaleDateString('id-ID', {
+          {days[0]?.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })} –{' '}
+          {days[days.length - 1]?.toLocaleDateString('en-US', {
             day: 'numeric',
             month: 'short',
             year: 'numeric',
@@ -100,7 +100,7 @@ export function EarningsCalendarGridView({
             <div key={key} className="min-h-[220px] rounded-md border border-border bg-panel p-2">
               <div className="border-b border-border-muted pb-2">
                 <div className="text-[10px] font-medium text-text-primary">
-                  {d.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' })}
+                  {d.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' })}
                 </div>
                 <div className="text-[10px] text-text-muted">{list.length} Earnings</div>
               </div>
@@ -144,7 +144,7 @@ export function EarningsCalendarGridView({
               <div className="font-mono text-sm text-text-primary">{selected.symbol}</div>
               <div className="text-xs text-text-secondary">{selected.company_name || '—'}</div>
               <div className="mt-1 text-[10px] text-text-muted">
-                {new Date(selected.earnings_date).toLocaleString('id-ID')}
+                {new Date(selected.earnings_date).toLocaleString('en-US')}
                 {selected.timing ? ` · ${selected.timing}` : ''}
               </div>
             </div>
@@ -153,7 +153,7 @@ export function EarningsCalendarGridView({
               onClick={() => setSelected(null)}
               className="text-xs text-text-muted hover:text-text-primary"
             >
-              Tutup
+              Close
             </button>
           </div>
           <div className="mt-3 flex flex-wrap gap-4 text-xs text-text-secondary">
@@ -165,7 +165,7 @@ export function EarningsCalendarGridView({
             href={`/analysis/${encodeURIComponent(selected.symbol)}`}
             className="mt-3 inline-block text-xs text-positive hover:underline"
           >
-            Buka Analysis →
+            Open Analysis →
           </Link>
         </div>
       )}

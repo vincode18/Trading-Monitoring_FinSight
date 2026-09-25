@@ -38,7 +38,7 @@ def get_news_for_symbol(symbol: str, max_items: int | None = None) -> list[NewsI
                 content.get("provider", {}).get("displayName")
                 if isinstance(content.get("provider"), dict)
                 else entry.get("publisher")
-            ) or "Yahoo Finance"
+            ) or "Market data"
             link = (
                 content.get("canonicalUrl", {}).get("url")
                 if isinstance(content.get("canonicalUrl"), dict)

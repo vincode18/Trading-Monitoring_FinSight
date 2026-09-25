@@ -118,7 +118,7 @@ export default function EarningsCalendarPage() {
         <div>
           <h1 className="text-h1 text-text-primary">Earnings Calendar</h1>
           <p className="mt-1 text-sm text-text-secondary">
-            Jadwal laporan keuangan — stay ahead of market moves.
+            Earnings calendar — stay ahead of market moves.
           </p>
         </div>
         <div className="flex gap-1 rounded border border-border p-0.5">
@@ -228,11 +228,11 @@ export default function EarningsCalendarPage() {
 
       {error && (
         <p className="rounded border border-negative/30 bg-negative/10 px-3 py-2 text-xs text-negative">
-          Gagal memuat earnings calendar.
+          Failed to load earnings calendar.
         </p>
       )}
       {isLoading && !data && (
-        <p className="py-12 text-center text-xs text-text-muted">Memuat earnings...</p>
+        <p className="py-12 text-center text-xs text-text-muted">Loading earnings...</p>
       )}
 
       {!isLoading && view === 'list' && <EarningsListView items={filtered} />}
@@ -241,8 +241,8 @@ export default function EarningsCalendarPage() {
       )}
 
       <p className="text-[10px] text-text-muted">
-        Data via Yahoo Finance / yfinance Calendars — bukan nasihat keuangan. Indonesia memakai
-        jalur per-simbol (IDX belum tercakup market-wide Calendars).
+        Market data from third-party providers — not financial advice. Indonesia uses a
+        per-symbol path (IDX is not covered by market-wide calendars yet).
       </p>
     </div>
   );

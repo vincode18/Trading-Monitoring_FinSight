@@ -59,7 +59,7 @@ export default function DashboardPage() {
         <div>
           <h1 className="text-h1 text-text-primary">Dashboard</h1>
           <p className="mt-1 text-sm text-text-secondary">
-            Ringkasan pasar sebelum masuk ke detail simbol.
+            Market summary before you drill into symbol detail.
           </p>
         </div>
         <Link
@@ -121,7 +121,7 @@ export default function DashboardPage() {
                 <NewsCard key={i} item={item} />
               ))}
               {!news?.length && (
-                <p className="py-8 text-center text-xs text-text-muted">Belum ada berita.</p>
+                <p className="py-8 text-center text-xs text-text-muted">No news yet.</p>
               )}
             </div>
           </div>
@@ -164,13 +164,13 @@ export default function DashboardPage() {
       )}
 
       {isLoading && !quotes && (
-        <p className="text-center text-xs text-text-muted">Memuat watchlist...</p>
+        <p className="text-center text-xs text-text-muted">Loading watchlist...</p>
       )}
 
       <p className="max-w-3xl text-[10px] leading-relaxed text-text-muted">
-        Disclaimer: Dashboard FinSight adalah alat bantu riset pasar, bukan nasihat keuangan
-        berlisensi. Market Sentiment Score, movers, dan MA Cross menampilkan fakta/kalkulasi
-        internal — bukan rekomendasi beli atau jual.
+        Disclaimer: The FinSight dashboard is a market research tool, not licensed financial
+        advice. Market Sentiment Score, movers, and MA Cross show internal facts/calculations —
+        not buy or sell recommendations.
       </p>
     </div>
   );

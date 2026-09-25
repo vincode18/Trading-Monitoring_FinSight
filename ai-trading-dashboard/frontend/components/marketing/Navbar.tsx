@@ -5,10 +5,10 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 const LINKS = [
-  { href: '#features', label: 'Fitur' },
-  { href: '#markets', label: 'Pasar' },
-  { href: '#pricing', label: 'Harga' },
-  { href: '#about', label: 'Tentang' },
+  { href: '#features', label: 'Features' },
+  { href: '#markets', label: 'Markets' },
+  { href: '#pricing', label: 'Pricing' },
+  { href: '#about', label: 'About' },
 ];
 
 export function MarketingNavbar() {
@@ -44,13 +44,13 @@ export function MarketingNavbar() {
             href="/login"
             className="rounded-md border border-border px-3 py-1.5 text-sm text-text-primary hover:border-text-secondary"
           >
-            Masuk
+            Sign In
           </Link>
           <Link
             href="/signup"
             className="rounded-md bg-action-primary px-3 py-1.5 text-sm font-medium text-canvas hover:bg-white/90"
           >
-            Daftar Gratis
+            Sign Up Free
           </Link>
         </div>
         <button
@@ -70,10 +70,10 @@ export function MarketingNavbar() {
               </a>
             ))}
             <Link href="/login" className="text-sm text-text-primary">
-              Masuk
+              Sign In
             </Link>
             <Link href="/signup" className="text-sm text-positive">
-              Daftar Gratis
+              Sign Up Free
             </Link>
           </div>
         </div>

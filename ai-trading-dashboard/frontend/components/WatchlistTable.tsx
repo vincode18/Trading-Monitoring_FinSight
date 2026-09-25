@@ -19,7 +19,7 @@ export function WatchlistTable({
   if (loading && quotes.length === 0) {
     return (
       <div className="flex h-32 items-center justify-center text-sm text-text-muted">
-        Memuat data...
+        Loading data...
       </div>
     );
   }
@@ -27,7 +27,7 @@ export function WatchlistTable({
   if (quotes.length === 0) {
     return (
       <div className="flex h-32 items-center justify-center text-sm text-text-muted">
-        Watchlist kosong. Tambahkan simbol di sidebar.
+        Watchlist is empty. Add symbols in the sidebar.
       </div>
     );
   }
@@ -37,10 +37,10 @@ export function WatchlistTable({
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-border bg-panel text-left text-xs uppercase tracking-wide text-text-muted">
-            <th className="px-3 py-2 font-medium">Simbol</th>
-            <th className="px-3 py-2 font-medium">Nama</th>
-            <th className="px-3 py-2 text-right font-medium">Harga</th>
-            <th className="px-3 py-2 text-right font-medium">Perubahan</th>
+            <th className="px-3 py-2 font-medium">Symbol</th>
+            <th className="px-3 py-2 font-medium">Name</th>
+            <th className="px-3 py-2 text-right font-medium">Price</th>
+            <th className="px-3 py-2 text-right font-medium">Change</th>
             <th className="px-3 py-2 text-right font-medium">%</th>
             <th className="px-3 py-2 text-right font-medium">Mkt Cap</th>
             <th className="px-3 py-2 font-medium">Status</th>

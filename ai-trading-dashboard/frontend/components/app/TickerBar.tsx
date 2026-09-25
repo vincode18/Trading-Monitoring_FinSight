@@ -14,7 +14,7 @@ export function TickerBar() {
     <div className="relative h-10 overflow-hidden border-b border-border bg-panel">
       {poolLoading && !items.length && (
         <span className="absolute left-4 top-1/2 -translate-y-1/2 animate-pulse-soft text-xs text-text-muted">
-          Memuat ticker...
+          Loading ticker...
         </span>
       )}
       {items.length > 0 && (

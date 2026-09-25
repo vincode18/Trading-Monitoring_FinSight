@@ -10,7 +10,7 @@ export function TopGainersTable({ quotes, loading }: { quotes: QuoteSnapshot[]; 
       <h2 className="text-h2 text-text-primary">Top Gainers</h2>
       <div className="mt-3 space-y-1">
         {loading && !quotes.length && (
-          <p className="py-6 text-center text-xs text-text-muted">Memuat...</p>
+          <p className="py-6 text-center text-xs text-text-muted">Loading...</p>
         )}
         {quotes.map((q) => (
           <Link

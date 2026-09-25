@@ -1,17 +1,32 @@
 import {
+  Alert,
   AnalysisScore,
   ChartData,
   EarningsCalendarItem,
   FearGreed,
+  FundamentalCharts,
+  FundamentalCriteria,
+  FundamentalFitResult,
+  FundamentalFreq,
+  Fundamentals,
+  Holding,
   MACrossAlert,
   MarketSummary,
   NewsItem,
+  PortfolioSummary,
   QuoteSnapshot,
   RadarScore,
   SectorPerformance,
   SentimentScore,
+  ShareholderAnalysis,
+  FundamentalStrategyDetail,
+  ScreenResult,
+  StrategyCatalogItem,
+  StrategyResult,
+  SubscriptionInfo,
   SupportResistance,
   SymbolSearchResult,
+  UserPreferences,
   VolumeMover,
 } from '@/types/market';
 
@@ -61,8 +76,8 @@ async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
         ? body.detail
         : Array.isArray(body.detail)
           ? body.detail.map((d: { msg?: string }) => d.msg).filter(Boolean).join(', ')
-          : `Request gagal (${res.status})`;
-    throw new ApiError(detail || `Request gagal (${res.status})`, res.status);
+          : `Request failed (${res.status})`;
+    throw new ApiError(detail || `Request failed (${res.status})`, res.status);
   }
 
   if (res.status === 204) return undefined as T;
@@ -197,6 +212,159 @@ export const api = {
     fetchJson<SupportResistance>(
       `/api/analysis/support-resistance/${encodeURIComponent(symbol)}`
     ),
+
+  getFundamentals: (symbol: string) =>
+    fetchJson<Fundamentals>(`/api/analysis/fundamental/${encodeURIComponent(symbol)}`),
+
+  getFundamentalCharts: (symbol: string, freq: FundamentalFreq) =>
+    fetchJson<FundamentalCharts>(
+      `/api/analysis/fundamental-charts/${encodeURIComponent(symbol)}?freq=${freq}`
+    ),
+
+  getShareholders: (symbol: string) =>
+    fetchJson<ShareholderAnalysis>(`/api/analysis/shareholders/${encodeURIComponent(symbol)}`),
+
+  checkFundamentalFit: (symbol: string, criteria: FundamentalCriteria) =>
+    fetchJson<FundamentalFitResult>(
+      `/api/analysis/fundamental-fit/${encodeURIComponent(symbol)}`,
+      { method: 'POST', body: JSON.stringify(criteria) }
+    ),
+
+  listStrategies: () => fetchJson<StrategyCatalogItem[]>('/api/analysis/strategies'),
+
+  getStrategy: (symbol: string, slug: string) =>
+    fetchJson<StrategyResult>(
+      `/api/analysis/strategy/${encodeURIComponent(symbol)}?slug=${encodeURIComponent(slug)}`
+    ),
+
+  listScreenStrategies: () => fetchJson<StrategyCatalogItem[]>('/api/analysis/screen-strategies'),
+
+  screenStrategy: (
+    strategy: string,
+    symbols: string[],
+    opts?: { pool?: 'all'; page?: number; pageSize?: number }
+  ) => {
+    const params = new URLSearchParams();
+    if (opts?.page) params.set('page', String(opts.page));
+    if (opts?.pageSize) params.set('page_size', String(opts.pageSize));
+    const query = params.toString();
+    return fetchJson<ScreenResult>(
+      `/api/analysis/screen/${encodeURIComponent(strategy)}${query ? `?${query}` : ''}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(opts?.pool === 'all' ? { pool: 'all', symbols: [] } : { symbols }),
+      }
+    );
+  },
+
+  listFundamentalScreens: () =>
+    fetchJson<StrategyCatalogItem[]>('/api/analysis/fundamental-screen-strategies'),
+
+  screenFundamental: (
+    strategy: string,
+    symbols: string[],
+    minDividendYield = 2,
+    opts?: { pool?: 'all'; page?: number; pageSize?: number }
+  ) => {
+    const params = new URLSearchParams();
+    if (opts?.page) params.set('page', String(opts.page));
+    if (opts?.pageSize) params.set('page_size', String(opts.pageSize));
+    const query = params.toString();
+    return fetchJson<ScreenResult>(
+      `/api/analysis/fundamental-screen/${encodeURIComponent(strategy)}${query ? `?${query}` : ''}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(
+          opts?.pool === 'all'
+            ? { pool: 'all', symbols: [], min_dividend_yield: minDividendYield }
+            : { symbols, min_dividend_yield: minDividendYield }
+        ),
+      }
+    );
+  },
+
+  getFundamentalStrategy: (symbol: string, strategy: string, minDividendYield = 2) =>
+    fetchJson<FundamentalStrategyDetail>(
+      `/api/analysis/fundamental-strategy/${encodeURIComponent(symbol)}?strategy=${encodeURIComponent(strategy)}&min_dividend_yield=${minDividendYield}`
+    ),
+
+  createAlert: (payload: { symbol: string; condition: string; threshold?: number }) =>
+    fetchJson<Alert>('/api/alerts', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  listAlerts: (status?: string) => {
+    const q = status ? `?status=${encodeURIComponent(status)}` : '';
+    return fetchJson<Alert[]>(`/api/alerts${q}`);
+  },
+
+  toggleAlert: (id: string, status: string) =>
+    fetchJson<Alert>(`/api/alerts/${encodeURIComponent(id)}?status=${encodeURIComponent(status)}`, {
+      method: 'PATCH',
+    }),
+
+  deleteAlert: (id: string) =>
+    fetchJson<{ deleted: boolean }>(`/api/alerts/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    }),
+
+  checkAlerts: () => fetchJson<Alert[]>('/api/alerts/check'),
+
+  addHolding: (payload: {
+    symbol: string;
+    quantity: number;
+    avg_buy_price: number;
+    buy_date: string;
+    note?: string;
+  }) =>
+    fetchJson<Holding>('/api/portfolio/holdings', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  listHoldings: () => fetchJson<Holding[]>('/api/portfolio/holdings'),
+
+  updateHolding: (
+    id: string,
+    payload: { quantity?: number; avg_buy_price?: number; note?: string }
+  ) =>
+    fetchJson<Holding>(`/api/portfolio/holdings/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
+
+  deleteHolding: (id: string) =>
+    fetchJson<{ deleted: boolean }>(`/api/portfolio/holdings/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    }),
+
+  getPortfolioSummary: () => fetchJson<PortfolioSummary>('/api/portfolio/summary'),
+
+  updateProfile: (name: string) =>
+    fetchJson<AuthUser>('/api/auth/me', {
+      method: 'PATCH',
+      body: JSON.stringify({ name }),
+    }),
+
+  changePassword: (old_password: string, new_password: string) =>
+    fetchJson<{ success: boolean }>('/api/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify({ old_password, new_password }),
+    }),
+
+  deleteAccount: () =>
+    fetchJson<{ deleted: boolean }>('/api/auth/me', { method: 'DELETE' }),
+
+  getPreferences: () => fetchJson<UserPreferences>('/api/settings/preferences'),
+
+  updatePreferences: (payload: UserPreferences) =>
+    fetchJson<UserPreferences>('/api/settings/preferences', {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
+
+  getSubscription: () => fetchJson<SubscriptionInfo>('/api/settings/subscription'),
 };
 
 export { ApiError };

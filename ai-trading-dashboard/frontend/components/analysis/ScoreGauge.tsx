@@ -58,7 +58,7 @@ export function ScoreGauge({ score, label }: ScoreGaugeProps) {
         {label}
       </div>
       <p className="mt-2 text-center text-[10px] text-text-muted">
-        Ringkasan teknikal — bukan rekomendasi beli/jual.
+        Technical summary — not a buy/sell recommendation.
       </p>
     </div>
   );

@@ -7,22 +7,22 @@ import { useRouter } from 'next/navigation';
 
 const SLIDES = [
   {
-    title: 'Pantau Pasar, Real-Time.',
-    body: 'Saham, kripto, dan indeks — satu dashboard, tanpa buka banyak tab.',
+    title: 'Monitor Markets, Real-Time.',
+    body: 'Stocks, crypto, and indices — one dashboard, without opening many tabs.',
     image: 'https://placehold.co/480x360/161B22/5C6673?text=Watchlist+Preview',
     alt: 'Preview watchlist',
   },
   {
-    title: 'Baca Sinyal Teknikal, Instan.',
-    body: 'MA, RSI, MACD, Bollinger Bands — semua terhitung otomatis di setiap simbol yang Anda pantau.',
+    title: 'Read Technical Signals, Instantly.',
+    body: 'MA, RSI, MACD, Bollinger Bands — all calculated automatically for every symbol you track.',
     image: 'https://placehold.co/480x360/161B22/5C6673?text=Chart+Preview',
     alt: 'Preview chart',
   },
   {
-    title: 'Berita yang Relevan, Bukan Berisik.',
-    body: 'Kabar penting per simbol, langsung terhubung ke watchlist Anda.',
+    title: 'Relevant News, Not Noise.',
+    body: 'Important headlines per symbol, tied directly to your watchlist.',
     image: 'https://placehold.co/480x360/161B22/5C6673?text=News+Preview',
-    alt: 'Preview berita',
+    alt: 'News preview',
   },
 ];
 
@@ -106,7 +106,7 @@ export function OnboardingCarousel() {
             onClick={goLanding}
             className="rounded-md px-3 py-2.5 text-sm text-text-muted hover:text-text-secondary"
           >
-            Lewati
+            Skip
           </button>
         ) : (
           <span />
@@ -116,7 +116,7 @@ export function OnboardingCarousel() {
           onClick={next}
           className="rounded-md bg-positive px-5 py-2.5 text-sm font-semibold text-canvas hover:bg-positive/90"
         >
-          {last ? 'Mulai Sekarang' : 'Lanjut'}
+          {last ? 'Get Started' : 'Next'}
         </button>
       </div>
     </div>

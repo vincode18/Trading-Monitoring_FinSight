@@ -11,7 +11,7 @@ function initials(name: string | null | undefined, symbol: string) {
 }
 
 function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString('id-ID', {
+  return new Date(iso).toLocaleDateString('en-US', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -122,7 +122,7 @@ export function EarningsListView({ items }: { items: EarningsCalendarItem[] }) {
           {!items.length && (
             <tr>
               <td colSpan={8} className="px-3 py-10 text-center text-text-muted">
-                Tidak ada data earnings untuk filter ini.
+                No earnings data for this filter.
               </td>
             </tr>
           )}

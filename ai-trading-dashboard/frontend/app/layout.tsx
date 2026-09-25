@@ -4,12 +4,12 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'FinSight — AI Research Terminal',
   description:
-    'Pantau pasar, analisis teknikal, dan berita — alat bantu riset untuk trader ritel Indonesia.',
+    'Monitor markets, technical analysis, and news — a research tool for retail traders.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id">
+    <html lang="en">
       <body className="font-sans antialiased">{children}</body>
     </html>
   );

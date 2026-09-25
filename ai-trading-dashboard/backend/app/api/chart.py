@@ -41,42 +41,57 @@ def get_chart(
     if df.empty:
         raise HTTPException(
             status_code=404,
-            detail=f"Data tidak tersedia untuk '{symbol}' dengan periode={period}, interval={interval}",
+            detail=f"Data not available for '{symbol}' with period={period}, interval={interval}",
         )
 
     df_ind = add_all_indicators(df)
 
-    candles = [
-        CandleResponse(
-            date=row["Date"].isoformat(),
-            open=_clean(row["Open"]),
-            high=_clean(row["High"]),
-            low=_clean(row["Low"]),
-            close=_clean(row["Close"]),
-            volume=_clean(row["Volume"]) or 0,
+    candles = []
+    indicators = []
+    for _, row in df_ind.iterrows():
+        open_ = _clean(row["Open"])
+        high = _clean(row["High"])
+        low = _clean(row["Low"])
+        close = _clean(row["Close"])
+        # Bar tanpa OHLC (umum 1 bar kosong di data harian Yahoo) jangan menggagalkan seluruh response.
+        if None in (open_, high, low, close):
+            continue
+        raw_date = row["Date"]
+        date = raw_date.isoformat() if hasattr(raw_date, "isoformat") else str(raw_date)
+        candles.append(
+            CandleResponse(
+                date=date,
+                open=open_,
+                high=high,
+                low=low,
+                close=close,
+                volume=_clean(row["Volume"]) or 0,
+            )
         )
-        for _, row in df_ind.iterrows()
-    ]
+        indicators.append(
+            IndicatorPointResponse(
+                date=date,
+                ma20=_clean(row.get("MA20")),
+                ma50=_clean(row.get("MA50")),
+                ma100=_clean(row.get("MA100")),
+                ma200=_clean(row.get("MA200")),
+                ema12=_clean(row.get("EMA12")),
+                ema26=_clean(row.get("EMA26")),
+                rsi14=_clean(row.get("RSI14")),
+                macd=_clean(row.get("MACD")),
+                macd_signal=_clean(row.get("MACD_Signal")),
+                macd_hist=_clean(row.get("MACD_Hist")),
+                bb_upper=_clean(row.get("BB_Upper")),
+                bb_middle=_clean(row.get("BB_Middle")),
+                bb_lower=_clean(row.get("BB_Lower")),
+            )
+        )
 
-    indicators = [
-        IndicatorPointResponse(
-            date=row["Date"].isoformat(),
-            ma20=_clean(row.get("MA20")),
-            ma50=_clean(row.get("MA50")),
-            ma100=_clean(row.get("MA100")),
-            ma200=_clean(row.get("MA200")),
-            ema12=_clean(row.get("EMA12")),
-            ema26=_clean(row.get("EMA26")),
-            rsi14=_clean(row.get("RSI14")),
-            macd=_clean(row.get("MACD")),
-            macd_signal=_clean(row.get("MACD_Signal")),
-            macd_hist=_clean(row.get("MACD_Hist")),
-            bb_upper=_clean(row.get("BB_Upper")),
-            bb_middle=_clean(row.get("BB_Middle")),
-            bb_lower=_clean(row.get("BB_Lower")),
+    if not candles:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Data not available for '{symbol}' with period={period}, interval={interval}",
         )
-        for _, row in df_ind.iterrows()
-    ]
 
     return ChartResponse(
         symbol=symbol,

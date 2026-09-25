@@ -48,11 +48,11 @@ export function AddSymbolModal({
           autoFocus
           value={query}
           onChange={(e) => handleSearch(e.target.value)}
-          placeholder="Cari simbol atau nama..."
+          placeholder="Search symbol or name..."
           className="w-full rounded border border-border bg-canvas px-3 py-2 text-sm text-text-primary placeholder:text-text-muted"
         />
         <div className="mt-2 max-h-64 overflow-y-auto">
-          {searching && <p className="px-2 py-2 text-xs text-text-muted">Mencari...</p>}
+          {searching && <p className="px-2 py-2 text-xs text-text-muted">Searching...</p>}
           {results.map((r) => (
             <button
               key={r.symbol}

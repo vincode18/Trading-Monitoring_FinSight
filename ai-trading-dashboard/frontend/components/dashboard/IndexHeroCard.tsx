@@ -12,7 +12,7 @@ export function IndexHeroCard({ symbol, label }: { symbol: string; label: string
   return (
     <div className="flex h-full min-h-[140px] flex-col rounded-md border border-border bg-panel px-4 py-3">
       <div className="text-[10px] font-medium uppercase tracking-wide text-text-muted">
-        Index Utama
+        Main Index
       </div>
       <div className="mt-1 text-sm font-semibold text-text-primary">{label}</div>
       <div className="mt-auto pt-3">

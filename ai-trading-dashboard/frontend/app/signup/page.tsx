@@ -16,7 +16,7 @@ export default function SignupPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-canvas via-canvas/40 to-transparent" />
         <p className="absolute bottom-12 left-10 right-10 text-lg font-semibold leading-snug text-text-primary">
-          &ldquo;Satu akun, semua pasar yang Anda pantau — tersimpan dan siap kapan saja.&rdquo;
+          &ldquo;One account, every market you track — saved and ready anytime.&rdquo;
         </p>
       </div>
 

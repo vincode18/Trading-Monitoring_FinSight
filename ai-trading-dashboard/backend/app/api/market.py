@@ -145,7 +145,7 @@ def get_sentiment(request: Request, symbol: str):
     symbol = symbol.upper()
     df = get_history(symbol, period="1y", interval="1d")
     if df is None or df.empty:
-        raise HTTPException(status_code=404, detail=f"Data historis tidak tersedia untuk {symbol}")
+        raise HTTPException(status_code=404, detail=f"Historical data not available for {symbol}")
     quote = get_quote_snapshot(symbol)
     result = sentiment_score(df, quote.last_price, quote.year_high, quote.year_low)
     return SentimentScoreResponse(symbol=symbol, **result)

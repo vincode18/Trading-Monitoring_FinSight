@@ -4,24 +4,24 @@ import { useState } from 'react';
 
 const FAQ = [
   {
-    q: 'Apakah FinSight memberikan saran jual-beli?',
-    a: 'Tidak. FinSight adalah alat bantu riset pasar, bukan nasihat keuangan berlisensi. Semua keputusan investasi/trading sepenuhnya tanggung jawab pengguna.',
+    q: 'Does FinSight give buy/sell advice?',
+    a: 'No. FinSight is a market research tool, not licensed financial advice. All investment/trading decisions are solely the user\'s responsibility.',
   },
   {
-    q: 'Dari mana data harga diambil?',
-    a: 'Data harga dan berita saat ini bersumber dari Yahoo Finance (via backend). Ini cocok untuk riset, bukan eksekusi order berkecepatan tinggi.',
+    q: 'Where does price data come from?',
+    a: 'Prices and news are supplied by third-party market data providers via our backend. Suitable for research, not high-speed order execution.',
   },
   {
-    q: 'Apakah watchlist tersimpan antar perangkat?',
-    a: 'Saat ini watchlist disimpan di perangkat (browser). Sinkronisasi per akun menyusul setelah fitur akun penuh aktif.',
+    q: 'Is the watchlist synced across devices?',
+    a: 'Currently the watchlist is stored on this device (browser). Account sync will follow once full account features are live.',
   },
   {
-    q: 'Apakah ada biaya berlangganan?',
-    a: 'Model freemium mengikuti roadmap produk. Billing & paket berbayar direncanakan di tahap berikutnya.',
+    q: 'Is there a subscription fee?',
+    a: 'A freemium model follows the product roadmap. Billing and paid plans are planned for a later stage.',
   },
   {
-    q: 'Bagaimana dengan risiko trading?',
-    a: 'Trading mengandung risiko kerugian. Gunakan FinSight hanya sebagai alat riset pendukung, bukan sebagai satu-satunya dasar keputusan.',
+    q: 'What about trading risk?',
+    a: 'Trading involves risk of loss. Use FinSight only as a supporting research tool, not as the sole basis for decisions.',
   },
 ];
 
@@ -30,9 +30,9 @@ export function FaqAccordion() {
 
   return (
     <section id="faq" className="mx-auto max-w-3xl px-5 py-16">
-      <h2 className="text-center text-h1 text-text-primary">Pertanyaan Umum</h2>
+      <h2 className="text-center text-h1 text-text-primary">Frequently Asked Questions</h2>
       <p className="mx-auto mt-2 max-w-lg text-center text-sm text-text-secondary">
-        Ringkas dan jujur — termasuk disclaimer risiko.
+        Short and honest — including risk disclaimers.
       </p>
       <div className="mt-8 space-y-2">
         {FAQ.map((item, i) => {

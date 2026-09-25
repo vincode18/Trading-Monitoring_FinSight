@@ -71,7 +71,7 @@ export function RadarChart({ data }: RadarChartProps) {
         </svg>
       </div>
       <p className="mt-1 text-center text-[10px] text-text-muted">
-        Skor relatif 0–100 dari indikator teknikal — bukan rekomendasi finansial.
+        Relative 0–100 scores from technical indicators — not financial advice.
       </p>
     </div>
   );

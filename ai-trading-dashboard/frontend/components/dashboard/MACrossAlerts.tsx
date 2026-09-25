@@ -15,15 +15,15 @@ export function MACrossAlerts({ symbols, market }: { symbols: string[]; market?:
     <div className="rounded-md border border-border bg-panel p-4">
       <h2 className="text-h2 text-text-primary">MA Cross Alerts</h2>
       <p className="mt-1 text-[10px] text-text-muted">
-        Fakta persilangan MA20/MA50 — bukan rekomendasi beli/jual.
+        MA20/MA50 cross facts — not buy/sell recommendations.
       </p>
       <div className="mt-3 space-y-2">
         {isLoading && !data && (
-          <p className="py-6 text-center text-xs text-text-muted">Memuat...</p>
+          <p className="py-6 text-center text-xs text-text-muted">Loading...</p>
         )}
         {!isLoading && !data?.length && (
           <p className="py-6 text-center text-xs text-text-muted">
-            Tidak ada Golden/Death Cross baru pada universe tab ini.
+            No new Golden/Death Cross in this tab's universe.
           </p>
         )}
         {data?.map((a) => (

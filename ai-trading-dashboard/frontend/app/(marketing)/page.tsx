@@ -8,17 +8,17 @@ import { LandingGate } from '@/components/marketing/LandingGate';
 const FEATURES = [
   {
     title: 'Watchlist',
-    desc: 'Pantau banyak simbol saham, kripto, dan indeks dalam satu tabel ringkas.',
+    desc: 'Track stocks, crypto, and indices in one compact table.',
     icon: 'https://placehold.co/64x64/161B22/00E676?text=1',
   },
   {
-    title: 'Analisis Teknikal',
-    desc: 'MA, RSI, MACD, dan Bollinger Bands terhitung otomatis di setiap simbol.',
+    title: 'Technical Analysis',
+    desc: 'MA, RSI, MACD, and Bollinger Bands calculated automatically for every symbol.',
     icon: 'https://placehold.co/64x64/161B22/00E676?text=2',
   },
   {
-    title: 'Berita Real-Time',
-    desc: 'Headline relevan per simbol — tanpa buka banyak tab berita.',
+    title: 'Real-Time News',
+    desc: 'Relevant headlines per symbol — without opening dozens of news tabs.',
     icon: 'https://placehold.co/64x64/161B22/00E676?text=3',
   },
 ];
@@ -31,9 +31,9 @@ export default function LandingPage() {
       <StatsStrip />
 
       <section id="features" className="mx-auto max-w-6xl px-5 py-16">
-        <h2 className="text-h1 text-text-primary">Fitur Utama</h2>
+        <h2 className="text-h1 text-text-primary">Key Features</h2>
         <p className="mt-2 max-w-xl text-sm text-text-secondary">
-          Dirancang untuk riset padat — bukan dashboard konsumen yang ramai.
+          Built for focused research — not a noisy consumer dashboard.
         </p>
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           {FEATURES.map((f) => (
@@ -54,7 +54,7 @@ export default function LandingPage() {
           <div className="overflow-hidden rounded-panel border border-border-card">
             <Image
               src="https://placehold.co/800x500/161B22/5C6673?text=Chart+%26+Analysis+Preview"
-              alt="Preview chart dan analisis"
+              alt="Chart and analysis preview"
               width={800}
               height={500}
               className="h-auto w-full"
@@ -62,10 +62,10 @@ export default function LandingPage() {
             />
           </div>
           <div>
-            <h2 className="text-h1 text-text-primary">Chart & analisis dalam satu alur</h2>
+            <h2 className="text-h1 text-text-primary">Charts & analysis in one flow</h2>
             <p className="mt-3 text-sm leading-relaxed text-text-secondary">
-              Dari watchlist ke chart timeframe, indikator, hingga skor analisis — tanpa pindah
-              aplikasi. Selalu dilengkapi disclaimer: alat riset, bukan rekomendasi finansial.
+              From watchlist to timeframe charts, indicators, and analysis scores — without switching
+              apps. Always with a disclaimer: research tool, not financial advice.
             </p>
           </div>
         </div>
@@ -75,15 +75,15 @@ export default function LandingPage() {
 
       <section id="pricing" className="border-t border-border bg-panel/30 py-16">
         <div className="mx-auto max-w-6xl px-5 text-center">
-          <h2 className="text-h1 text-text-primary">Siap memantau pasar dengan lebih rapi?</h2>
+          <h2 className="text-h1 text-text-primary">Ready to monitor markets more clearly?</h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-text-secondary">
-            Buat akun gratis dan mulai riset dari satu terminal.
+            Create a free account and start researching from one terminal.
           </p>
           <Link
             href="/signup"
             className="mt-6 inline-block rounded-md bg-positive px-5 py-2.5 text-sm font-semibold text-canvas hover:bg-positive/90"
           >
-            Mulai Sekarang
+            Get Started
           </Link>
         </div>
       </section>
@@ -103,16 +103,16 @@ export default function LandingPage() {
           </div>
           <div className="flex flex-wrap gap-4 text-xs text-text-secondary">
             <a href="#about" className="hover:text-text-primary">
-              Tentang
+              About
             </a>
-            <span className="text-text-muted">Syarat & Ketentuan</span>
-            <span className="text-text-muted">Privasi</span>
+            <span className="text-text-muted">Terms & Conditions</span>
+            <span className="text-text-muted">Privacy</span>
           </div>
         </div>
         <div className="mx-auto mt-6 max-w-6xl space-y-2 px-5 text-xs leading-relaxed text-text-muted">
           <p>
-            FinSight adalah alat bantu riset pasar, bukan nasihat keuangan berlisensi. Semua
-            keputusan investasi/trading sepenuhnya tanggung jawab pengguna.
+            FinSight is a market research tool, not licensed financial advice. All
+            investment/trading decisions are solely the user's responsibility.
           </p>
           <p>© {new Date().getFullYear()} ViandraLabs. </p>
         </div>

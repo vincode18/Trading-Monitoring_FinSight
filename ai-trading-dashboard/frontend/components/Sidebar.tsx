@@ -52,7 +52,7 @@ export function Sidebar({
         <h1 className="text-sm font-semibold tracking-tight text-text-primary">
           AI Trading Dashboard
         </h1>
-        <p className="mt-0.5 text-xs text-text-muted">Riset pasar real-time</p>
+        <p className="mt-0.5 text-xs text-text-muted">Real-time market research</p>
       </div>
 
       <div className="border-b border-border-muted px-4 py-3">
@@ -61,7 +61,7 @@ export function Sidebar({
             type="text"
             value={query}
             onChange={(e) => handleSearch(e.target.value)}
-            placeholder="Cari simbol atau nama..."
+            placeholder="Search symbol or name..."
             className="w-full rounded-sm border border-border bg-canvas px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:border-positive focus:outline-none"
           />
         </div>
@@ -69,10 +69,10 @@ export function Sidebar({
         {query.length >= 2 && (
           <div className="mt-2 max-h-56 overflow-y-auto rounded-sm border border-border bg-canvas">
             {searching && (
-              <div className="px-3 py-2 text-xs text-text-muted">Mencari...</div>
+              <div className="px-3 py-2 text-xs text-text-muted">Searching...</div>
             )}
             {!searching && results.length === 0 && (
-              <div className="px-3 py-2 text-xs text-text-muted">Tidak ada hasil</div>
+              <div className="px-3 py-2 text-xs text-text-muted">No results</div>
             )}
             {results.map((r) => (
               <button
@@ -98,7 +98,7 @@ export function Sidebar({
         </div>
         {watchlist.length === 0 && (
           <p className="px-2 py-3 text-xs text-text-muted">
-            Belum ada simbol. Cari dan tambahkan di atas.
+            No symbols yet. Search and add above.
           </p>
         )}
         <div className="flex flex-col gap-0.5">
@@ -120,7 +120,7 @@ export function Sidebar({
               <button
                 onClick={() => onRemoveSymbol(symbol)}
                 className="hidden text-text-muted hover:text-negative group-hover:block"
-                aria-label={`Hapus ${symbol}`}
+                aria-label={`Remove ${symbol}`}
               >
                 ×
               </button>
@@ -131,7 +131,7 @@ export function Sidebar({
 
       <div className="border-t border-border px-4 py-3">
         <p className="text-xs leading-relaxed text-text-muted">
-          Data via Yahoo Finance — bukan nasihat keuangan.
+          Market data from third-party providers — not financial advice.
         </p>
       </div>
     </aside>

@@ -21,10 +21,10 @@ export function SectorHeatmap({ market }: { market: string }) {
     <div className="rounded-md border border-border bg-panel p-4">
       <h2 className="text-h2 text-text-primary">Sector Performance</h2>
       <p className="mt-1 text-[10px] text-text-muted">
-        Rata-rata % perubahan basket per sektor (dense 4-kolom).
+        Average % change per sector basket (dense 4-column).
       </p>
       {error && (
-        <p className="mt-6 text-center text-xs text-text-muted">Gagal memuat sektor.</p>
+        <p className="mt-6 text-center text-xs text-text-muted">Failed to load sectors.</p>
       )}
       <div className="mt-3 grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-4">
         {(data?.sectors ?? []).map((s) => (
@@ -41,7 +41,7 @@ export function SectorHeatmap({ market }: { market: string }) {
           </div>
         ))}
         {!data && !error && (
-          <p className="col-span-full py-6 text-center text-xs text-text-muted">Memuat heatmap...</p>
+          <p className="col-span-full py-6 text-center text-xs text-text-muted">Loading heatmap...</p>
         )}
       </div>
     </div>

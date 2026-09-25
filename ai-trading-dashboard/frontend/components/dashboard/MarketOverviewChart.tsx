@@ -65,7 +65,7 @@ export function MarketOverviewChart({
       </div>
       <div ref={ref} className="w-full" />
       {!data?.candles?.length && (
-        <p className="py-8 text-center text-xs text-text-muted">Memuat chart...</p>
+        <p className="py-8 text-center text-xs text-text-muted">Loading chart...</p>
       )}
     </div>
   );

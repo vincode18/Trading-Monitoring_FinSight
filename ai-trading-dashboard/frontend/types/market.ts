@@ -94,6 +94,173 @@ export interface SupportResistance {
   resistance: (number | null)[];
 }
 
+export interface Fundamentals {
+  symbol: string;
+  revenue: number | null;
+  revenue_prev: number | null;
+  net_income: number | null;
+  net_income_prev: number | null;
+  eps: number | null;
+  gross_margin: number | null;
+  operating_margin: number | null;
+  net_margin: number | null;
+  total_assets: number | null;
+  total_liabilities: number | null;
+  total_equity: number | null;
+  debt_to_equity: number | null;
+  operating_cash_flow: number | null;
+  free_cash_flow: number | null;
+  capex: number | null;
+  pe_ratio: number | null;
+  pb_ratio: number | null;
+  market_cap: number | null;
+  dividends: Array<{ date: string | null; amount: number | null }>;
+  trend: Array<{ period: string; revenue: number | null; net_income: number | null }>;
+  disclaimer?: string;
+}
+
+export type FundamentalFreq = 'quarterly' | 'yearly' | 'trailing';
+
+export interface FundamentalEarningPoint {
+  period: string;
+  revenue: number | null;
+  gross_profit: number | null;
+  operating_income: number | null;
+  net_income: number | null;
+  net_income_prior: number | null;
+  eps: number | null;
+}
+
+export interface FundamentalMarginPoint {
+  period: string;
+  gross_margin: number | null;
+  operating_margin: number | null;
+  net_margin: number | null;
+}
+
+export interface FundamentalBalancePoint {
+  period: string;
+  total_assets: number | null;
+  total_equity: number | null;
+  total_liabilities: number | null;
+  short_debt: number | null;
+  long_debt: number | null;
+  total_debt: number | null;
+  der: number | null;
+  dtcr: number | null;
+}
+
+export interface FundamentalCashPoint {
+  period: string;
+  operating_cash_flow: number | null;
+  free_cash_flow: number | null;
+  capex: number | null;
+}
+
+export interface FundamentalValuationPoint {
+  period: string;
+  per: number | null;
+  pbv: number | null;
+  ev_ebitda: number | null;
+  bvps: number | null;
+  roe: number | null;
+  roa: number | null;
+}
+
+export interface FundamentalRatios {
+  per: number | null;
+  pbv: number | null;
+  ev_ebitda: number | null;
+  bvps: number | null;
+  roe: number | null;
+  roa: number | null;
+  der: number | null;
+  dtcr: number | null;
+  gross_margin: number | null;
+  operating_margin: number | null;
+  net_margin: number | null;
+}
+
+export interface FundamentalCharts {
+  symbol: string;
+  freq: string;
+  equity: boolean;
+  available: boolean;
+  balance_freq: string;
+  earnings: FundamentalEarningPoint[];
+  margins: FundamentalMarginPoint[];
+  balance: FundamentalBalancePoint[];
+  cashflow: FundamentalCashPoint[];
+  valuation: FundamentalValuationPoint[];
+  dividend_years: Array<{ date: string | null; amount: number | null }>;
+  dividend_payments: Array<{ date: string | null; amount: number | null }>;
+  ratios: FundamentalRatios;
+  notes: string[];
+  disclaimer: string;
+}
+
+export interface HolderSlice {
+  label: string;
+  percent: number | null;
+  count: number | null;
+}
+
+export interface InstitutionalHolder {
+  name: string;
+  shares: number | null;
+  percent: number | null;
+  value: number | null;
+  reported: string | null;
+  percent_change: number | null;
+}
+
+export interface InsiderTransaction {
+  insider: string | null;
+  position: string | null;
+  transaction: string | null;
+  shares: number | null;
+  value: number | null;
+  date: string | null;
+}
+
+export interface ShareholderAnalysis {
+  symbol: string;
+  equity: boolean;
+  available: boolean;
+  major_holders: HolderSlice[];
+  composition: HolderSlice[];
+  institutional_holders: InstitutionalHolder[];
+  insider_transactions: InsiderTransaction[];
+  disclaimer: string;
+}
+
+export interface FundamentalCriteria {
+  pbv_max: number | null;
+  der_max: number | null;
+  roe_min: number | null;
+  evebitda_max: number | null;
+}
+
+export interface FundamentalCriterionResult {
+  key: string;
+  label: string;
+  actual: number | null;
+  threshold: number | null;
+  comparator: string;
+  unit: string;
+  passed: boolean | null;
+}
+
+export interface FundamentalFitResult {
+  symbol: string;
+  equity: boolean;
+  available: boolean;
+  passed_count: number;
+  checked_count: number;
+  results: FundamentalCriterionResult[];
+  disclaimer: string;
+}
+
 export interface MarketSummary {
   total_market_cap: number | null;
   total_volume_24h: number | null;
@@ -154,3 +321,131 @@ export interface SectorPerformance {
 }
 
 export type WatchlistCategory = 'my' | 'tech' | 'crypto' | 'forex';
+
+export type AlertCondition =
+  | 'PRICE_ABOVE'
+  | 'PRICE_BELOW'
+  | 'CHANGE_PCT_ABOVE'
+  | 'CHANGE_PCT_BELOW'
+  | 'RSI_OVERBOUGHT'
+  | 'RSI_OVERSOLD'
+  | 'GOLDEN_CROSS'
+  | 'DEATH_CROSS'
+  | 'VOLUME_SPIKE';
+
+export type AlertStatus = 'ACTIVE' | 'TRIGGERED' | 'DISABLED';
+
+export interface Alert {
+  id: string;
+  symbol: string;
+  condition: AlertCondition | string;
+  threshold: number;
+  status: AlertStatus | string;
+  triggered_at: string | null;
+  created_at: string;
+}
+
+export interface Holding {
+  id: string;
+  symbol: string;
+  quantity: number;
+  avg_buy_price: number;
+  buy_date: string | null;
+  note: string | null;
+  current_price: number | null;
+  market_value: number | null;
+  unrealized_pnl: number | null;
+  unrealized_pnl_pct: number | null;
+}
+
+export interface PortfolioSummary {
+  total_value: number;
+  total_cost: number;
+  total_unrealized_pnl: number;
+  total_unrealized_pnl_pct: number;
+  holdings: Holding[];
+}
+
+export interface UserPreferences {
+  defaultMarket?: string;
+  defaultChartPeriod?: string;
+}
+
+export interface StrategyCatalogItem {
+  slug: string;
+  name: string;
+}
+
+export interface StrategyReading {
+  label: string;
+  value: string | null;
+}
+
+export interface StrategyState {
+  code: string;
+  label: string;
+  active: boolean;
+}
+
+export interface StrategyResult {
+  symbol: string;
+  slug: string;
+  name: string;
+  readings: StrategyReading[];
+  states: StrategyState[];
+  disclaimer: string;
+  explanation?: string;
+  match_score?: number | null;
+  trade_plan?: TradePlan | null;
+}
+
+export interface ScreenCondition {
+  code: string;
+  label: string;
+  met: boolean;
+}
+
+export interface TradePlan {
+  entry_reference: string | null;
+  stop_reference: string | null;
+  target_reference: string | null;
+  status: string;
+  disclaimer: string;
+}
+
+export interface ScreenMatch {
+  symbol: string;
+  match_score: number;
+  status: string;
+  conditions: ScreenCondition[];
+}
+
+export interface ScreenResult {
+  strategy: string;
+  name: string;
+  scanned: number;
+  matched: number;
+  page?: number;
+  page_size?: number;
+  results: ScreenMatch[];
+  disclaimer: string;
+}
+
+export interface FundamentalStrategyDetail {
+  symbol: string;
+  strategy: string;
+  name: string;
+  explanation: string;
+  match_score: number;
+  status: string;
+  conditions: ScreenCondition[];
+  trade_plan: TradePlan | null;
+  equity: boolean;
+}
+
+export interface SubscriptionInfo {
+  tier: string;
+  status: string;
+  has_billing_record: boolean;
+  end_date?: string | null;
+}

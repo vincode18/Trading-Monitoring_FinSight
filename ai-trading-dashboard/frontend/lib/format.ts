@@ -27,7 +27,7 @@ export function formatDate(iso: string | null, withTime = false): string {
   if (!iso) return '—';
   const date = new Date(iso);
   if (isNaN(date.getTime())) return '—';
-  return date.toLocaleDateString('id-ID', {
+  return date.toLocaleDateString('en-US', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',

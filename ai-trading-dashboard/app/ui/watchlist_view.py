@@ -15,39 +15,39 @@ def render_watchlist(symbols: list[str]) -> str | None:
     st.subheader("📋 Watchlist")
 
     if not symbols:
-        st.info("Watchlist kosong. Tambahkan simbol di sidebar.")
+        st.info("Watchlist is empty. Add symbols in the sidebar.")
         return None
 
-    with st.spinner("Mengambil data terkini..."):
+    with st.spinner("Fetching latest data..."):
         snapshots = get_multiple_snapshots(symbols)
 
     rows = []
     for s in snapshots:
         rows.append(
             {
-                "Simbol": s.symbol,
-                "Nama": s.name,
-                "Harga": s.last_price,
-                "Perubahan": s.change,
-                "Perubahan %": s.change_pct,
-                "Mata Uang": s.currency or "-",
-                "Status Pasar": s.market_state or "-",
+                "Symbol": s.symbol,
+                "Name": s.name,
+                "Price": s.last_price,
+                "Change": s.change,
+                "Change %": s.change_pct,
+                "Currency": s.currency or "-",
+                "Market Status": s.market_state or "-",
             }
         )
 
     df = pd.DataFrame(rows)
-    # Pastikan kolom numerik bertipe float (None -> NaN) supaya format tidak error
-    for col in ("Harga", "Perubahan", "Perubahan %"):
+    # Ensure numeric columns are float (None -> NaN) so formatting does not error
+    for col in ("Price", "Change", "Change %"):
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    missing = int(df["Harga"].isna().sum())
+    missing = int(df["Price"].isna().sum())
     if missing == len(df):
         st.warning(
-            "Data harga belum tersedia dari Yahoo Finance saat ini. "
-            "Coba refresh beberapa detik lagi, atau cek koneksi internet."
+            "Price data is not available from market data providers right now. "
+            "Try refreshing in a few seconds, or check your internet connection."
         )
     elif missing:
-        st.caption(f"{missing} simbol belum punya data harga.")
+        st.caption(f"{missing} symbols still have no price data.")
 
     def _color_change(val):
         if pd.isna(val):
@@ -56,25 +56,25 @@ def render_watchlist(symbols: list[str]) -> str | None:
         return f"color: {color}; font-weight: 600"
 
     try:
-        styled = df.style.map(_color_change, subset=["Perubahan", "Perubahan %"]).format(
+        styled = df.style.map(_color_change, subset=["Change", "Change %"]).format(
             {
-                "Harga": "{:,.2f}",
-                "Perubahan": "{:+,.2f}",
-                "Perubahan %": "{:+,.2f}%",
+                "Price": "{:,.2f}",
+                "Change": "{:+,.2f}",
+                "Change %": "{:+,.2f}%",
             },
             na_rep="-",
         )
         st.dataframe(styled, use_container_width=True, hide_index=True)
     except Exception:
-        # Fallback aman jika Styler gagal di environment tertentu
+        # Safe fallback if Styler fails in some environments
         display = df.copy()
-        display["Harga"] = display["Harga"].map(lambda v: f"{v:,.2f}" if pd.notna(v) else "-")
-        display["Perubahan"] = display["Perubahan"].map(lambda v: f"{v:+,.2f}" if pd.notna(v) else "-")
-        display["Perubahan %"] = display["Perubahan %"].map(lambda v: f"{v:+,.2f}%" if pd.notna(v) else "-")
+        display["Price"] = display["Price"].map(lambda v: f"{v:,.2f}" if pd.notna(v) else "-")
+        display["Change"] = display["Change"].map(lambda v: f"{v:+,.2f}" if pd.notna(v) else "-")
+        display["Change %"] = display["Change %"].map(lambda v: f"{v:+,.2f}%" if pd.notna(v) else "-")
         st.dataframe(display, use_container_width=True, hide_index=True)
 
     selected = st.selectbox(
-        "Lihat detail simbol:",
+        "View symbol detail:",
         options=symbols,
         format_func=lambda s: s,
         key="watchlist_select_detail",

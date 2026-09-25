@@ -17,7 +17,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
-from app.api import analysis, auth, chart, market, news, user_watchlist
+from app.api import alerts, analysis, auth, chart, market, news, portfolio, user_watchlist
+from app.api import settings as settings_api
 from app.config.settings import settings
 from app.core.db import connect_db, disconnect_db
 from app.core.rate_limit import limiter
@@ -54,7 +55,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
     allow_headers=["Content-Type", "Authorization"],
 )
 
@@ -64,6 +65,9 @@ app.include_router(market.router)
 app.include_router(chart.router)
 app.include_router(news.router)
 app.include_router(analysis.router)
+app.include_router(alerts.router)
+app.include_router(portfolio.router)
+app.include_router(settings_api.router)
 
 
 @app.get("/api/health", tags=["health"])

@@ -1,8 +1,8 @@
 const STATS = [
-  { value: '—', label: 'Pengguna Aktif', note: 'Segera Hadir' },
-  { value: '150+', label: 'Pasar Tercakup' },
+  { value: '—', label: 'Active Users', note: 'Coming Soon' },
+  { value: '150+', label: 'Markets Covered' },
   { value: '—', label: 'Uptime' },
-  { value: 'Email', label: 'Dukungan', note: 'Support' },
+  { value: 'Email', label: 'Support', note: 'Support' },
 ];
 
 export function StatsStrip() {

@@ -359,3 +359,161 @@ def get_earnings_calendar_for_symbols(
     if limit is not None:
         return results[:limit]
     return results
+
+
+def _row_latest(df: pd.DataFrame | None, names: list[str], nth: int = 0) -> float | None:
+    """Ambil nilai kolom ke-nth (0 = terbaru) dari baris yang namanya cocok."""
+    if df is None or getattr(df, "empty", True):
+        return None
+    target = None
+    wanted = {n.lower() for n in names}
+    for label in df.index:
+        if str(label).strip().lower() in wanted:
+            target = df.loc[label]
+            break
+    if target is None:
+        return None
+    values = []
+    series = target if hasattr(target, "items") else [target]
+    try:
+        iterable = list(target)
+    except TypeError:
+        iterable = [target]
+    for raw in iterable:
+        num = _safe_float(raw)
+        if num is not None:
+            values.append(num)
+    if nth >= len(values):
+        return None
+    return values[nth]
+
+
+def _margin(numerator: float | None, denominator: float | None) -> float | None:
+    if numerator is None or denominator is None or denominator == 0:
+        return None
+    return round((numerator / denominator) * 100, 4)
+
+
+@ttl_cache(ttl_seconds=3600)
+def get_fundamentals(symbol: str) -> dict:
+    """
+    Ringkasan fundamental dari yfinance (income, balance, cashflow, dividends, info).
+    Nama baris dicocokkan secara longgar — kosong jika Yahoo tidak menyediakan data (umum di IDX).
+    """
+    empty = {
+        "symbol": symbol.upper(),
+        "revenue": None,
+        "revenue_prev": None,
+        "net_income": None,
+        "net_income_prev": None,
+        "eps": None,
+        "gross_margin": None,
+        "operating_margin": None,
+        "net_margin": None,
+        "total_assets": None,
+        "total_liabilities": None,
+        "total_equity": None,
+        "debt_to_equity": None,
+        "operating_cash_flow": None,
+        "free_cash_flow": None,
+        "capex": None,
+        "pe_ratio": None,
+        "pb_ratio": None,
+        "market_cap": None,
+        "dividends": [],
+        "trend": [],
+        "disclaimer": "Financial figures from third-party market data — not investment advice. IDX stocks often have empty fields.",
+    }
+    try:
+        ticker = yf.Ticker(symbol)
+        income = getattr(ticker, "income_stmt", None)
+        q_income = getattr(ticker, "quarterly_income_stmt", None)
+        balance = getattr(ticker, "balance_sheet", None)
+        cash = getattr(ticker, "cashflow", None)
+        source = q_income if q_income is not None and not getattr(q_income, "empty", True) else income
+
+        revenue = _row_latest(source, ["Total Revenue", "Operating Revenue", "Revenue"])
+        revenue_prev = _row_latest(source, ["Total Revenue", "Operating Revenue", "Revenue"], 1)
+        net_income = _row_latest(source, ["Net Income", "Net Income Common Stockholders"])
+        net_income_prev = _row_latest(source, ["Net Income", "Net Income Common Stockholders"], 1)
+        gross = _row_latest(source, ["Gross Profit"])
+        operating = _row_latest(source, ["Operating Income", "Operating Income Loss"])
+        eps = _row_latest(source, ["Diluted EPS", "Basic EPS"])
+
+        assets = _row_latest(balance, ["Total Assets"])
+        liabilities = _row_latest(
+            balance,
+            ["Total Liabilities Net Minority Interest", "Total Liabilities"],
+        )
+        equity = _row_latest(
+            balance,
+            ["Stockholders Equity", "Total Equity Gross Minority Interest", "Common Stock Equity"],
+        )
+        debt = _row_latest(balance, ["Total Debt"])
+
+        ocf = _row_latest(cash, ["Operating Cash Flow", "Cash Flow From Continuing Operating Activities"])
+        fcf = _row_latest(cash, ["Free Cash Flow"])
+        capex = _row_latest(cash, ["Capital Expenditure", "Capital Expenditures"])
+
+        pe = pb = mcap = None
+        try:
+            info = ticker.info or {}
+            pe = _safe_float(info.get("trailingPE") or info.get("forwardPE"))
+            pb = _safe_float(info.get("priceToBook"))
+            mcap = _safe_float(info.get("marketCap"))
+        except Exception:
+            pass
+
+        dividends = []
+        try:
+            div = ticker.dividends
+            if div is not None and len(div):
+                tail = div.tail(8)
+                for idx, amount in tail.items():
+                    dividends.append({"date": _to_iso_date(idx), "amount": _safe_float(amount)})
+        except Exception:
+            dividends = []
+
+        trend = []
+        if source is not None and not getattr(source, "empty", True):
+            cols = list(source.columns)[:8]
+            for col in reversed(cols):
+                def cell(names: list[str]) -> float | None:
+                    for label in source.index:
+                        if str(label).strip().lower() in {n.lower() for n in names}:
+                            return _safe_float(source.loc[label, col])
+                    return None
+
+                trend.append(
+                    {
+                        "period": _to_iso_date(col) or str(col)[:10],
+                        "revenue": cell(["Total Revenue", "Operating Revenue", "Revenue"]),
+                        "net_income": cell(["Net Income", "Net Income Common Stockholders"]),
+                    }
+                )
+
+        return {
+            **empty,
+            "revenue": revenue,
+            "revenue_prev": revenue_prev,
+            "net_income": net_income,
+            "net_income_prev": net_income_prev,
+            "eps": eps,
+            "gross_margin": _margin(gross, revenue),
+            "operating_margin": _margin(operating, revenue),
+            "net_margin": _margin(net_income, revenue),
+            "total_assets": assets,
+            "total_liabilities": liabilities,
+            "total_equity": equity,
+            "debt_to_equity": (debt / equity) if debt is not None and equity not in (None, 0) else None,
+            "operating_cash_flow": ocf,
+            "free_cash_flow": fcf,
+            "capex": capex,
+            "pe_ratio": pe,
+            "pb_ratio": pb,
+            "market_cap": mcap,
+            "dividends": dividends,
+            "trend": trend,
+        }
+    except Exception:
+        return empty

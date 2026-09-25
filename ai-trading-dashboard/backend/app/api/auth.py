@@ -3,7 +3,14 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from prisma.enums import Role
 from prisma.models import User
 
-from app.api.schemas import LoginRequest, RegisterRequest, TokenResponse, UserResponse
+from app.api.schemas import (
+    ChangePasswordRequest,
+    LoginRequest,
+    RegisterRequest,
+    TokenResponse,
+    UpdateProfileRequest,
+    UserResponse,
+)
 from app.config.settings import settings
 from app.core.cookies import clear_auth_cookie, set_auth_cookie
 from app.core.db import db
@@ -84,3 +91,43 @@ async def logout(response: Response):
 @router.get("/me", response_model=UserResponse)
 async def me(current_user: User = Depends(get_current_user)):
     return _to_user_response(current_user)
+
+
+@router.patch("/me", response_model=UserResponse)
+async def update_me(
+    payload: UpdateProfileRequest, current_user: User = Depends(get_current_user)
+):
+    if not db.is_connected():
+        raise HTTPException(status_code=503, detail="Database belum terhubung")
+    name = payload.name.strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Nama wajib diisi")
+    updated = await db.user.update(where={"id": current_user.id}, data={"name": name})
+    return _to_user_response(updated)
+
+
+@router.post("/change-password")
+async def change_password(
+    payload: ChangePasswordRequest, current_user: User = Depends(get_current_user)
+):
+    if not db.is_connected():
+        raise HTTPException(status_code=503, detail="Database belum terhubung")
+    if len(payload.new_password) < 6:
+        raise HTTPException(status_code=400, detail="Password baru minimal 6 karakter")
+    full_user = await db.user.find_unique(where={"id": current_user.id})
+    if full_user is None or not verify_password(payload.old_password, full_user.passwordHash):
+        raise HTTPException(status_code=400, detail="Password saat ini salah")
+    await db.user.update(
+        where={"id": current_user.id},
+        data={"passwordHash": hash_password(payload.new_password)},
+    )
+    return {"success": True}
+
+
+@router.delete("/me")
+async def delete_me(response: Response, current_user: User = Depends(get_current_user)):
+    if not db.is_connected():
+        raise HTTPException(status_code=503, detail="Database belum terhubung")
+    await db.user.delete(where={"id": current_user.id})
+    clear_auth_cookie(response)
+    return {"deleted": True}

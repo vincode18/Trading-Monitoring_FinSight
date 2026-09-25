@@ -15,7 +15,7 @@ export default function ChartIndexPage() {
 
   return (
     <div className="flex h-64 items-center justify-center text-sm text-text-muted">
-      Membuka chart...
+      Opening chart...
     </div>
   );
 }

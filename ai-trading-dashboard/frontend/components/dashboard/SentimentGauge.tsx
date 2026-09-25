@@ -31,7 +31,7 @@ export function SentimentGauge({ symbol }: { symbol: string }) {
       </div>
       {error && (
         <p className="mt-6 flex-1 text-center text-xs text-text-muted">
-          Data sentimen belum tersedia.
+          Sentiment data not available yet.
         </p>
       )}
       {!error && (
@@ -66,7 +66,7 @@ export function SentimentGauge({ symbol }: { symbol: string }) {
             {label}
           </div>
           <p className="mt-2 text-center text-[10px] text-text-muted">
-            Skor internal — bukan Fear &amp; Greed CNN / bukan nasihat keuangan.
+            Internal score — not CNN Fear &amp; Greed / not financial advice.
           </p>
         </div>
       )}

@@ -28,20 +28,20 @@ export function AuthCard({ mode }: AuthCardProps) {
     e.preventDefault();
     setError('');
     if (!email.includes('@')) {
-      setError('Format email tidak valid.');
+      setError('Invalid email format.');
       return;
     }
     if (password.length < minPassword) {
-      setError(`Password minimal ${minPassword} karakter.`);
+      setError(`Password must be at least ${minPassword} characters.`);
       return;
     }
     if (mode === 'signup') {
       if (!name.trim()) {
-        setError('Nama wajib diisi.');
+        setError('Name is required.');
         return;
       }
       if (password !== confirm) {
-        setError('Konfirmasi password tidak cocok.');
+        setError('Password confirmation does not match.');
         return;
       }
     }
@@ -58,7 +58,7 @@ export function AuthCard({ mode }: AuthCardProps) {
       const msg =
         err instanceof ApiError
           ? err.message
-          : 'Gagal terhubung ke server. Pastikan backend berjalan.';
+          : 'Failed to connect to the server. Make sure the backend is running.';
       setError(msg);
     } finally {
       setLoading(false);
@@ -68,12 +68,12 @@ export function AuthCard({ mode }: AuthCardProps) {
   return (
     <div className="w-full max-w-md">
       <h1 className="text-h1 text-text-primary">
-        {mode === 'login' ? 'Selamat Datang Kembali' : 'Buat Akun Baru'}
+        {mode === 'login' ? 'Welcome Back' : 'Create New Account'}
       </h1>
       <p className="mt-1 text-sm text-text-secondary">
         {mode === 'login'
-          ? 'Masuk untuk melanjutkan pemantauan pasar Anda.'
-          : 'Mulai riset pasar dengan akun gratis.'}
+          ? 'Sign in to continue monitoring your markets.'
+          : 'Start market research with a free account.'}
       </p>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-3">
@@ -81,7 +81,7 @@ export function AuthCard({ mode }: AuthCardProps) {
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Nama lengkap"
+            placeholder="Full name"
             autoComplete="name"
             disabled={loading}
             className={inputClass}
@@ -107,7 +107,7 @@ export function AuthCard({ mode }: AuthCardProps) {
             className={inputClass}
           />
           {mode === 'signup' && (
-            <p className="mt-1.5 text-[10px] text-text-muted">Minimal 8 karakter</p>
+            <p className="mt-1.5 text-[10px] text-text-muted">At least 8 characters</p>
           )}
         </div>
         {mode === 'signup' && (
@@ -115,7 +115,7 @@ export function AuthCard({ mode }: AuthCardProps) {
             type="password"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
-            placeholder="Konfirmasi password"
+            placeholder="Confirm password"
             autoComplete="new-password"
             disabled={loading}
             className={inputClass}
@@ -127,23 +127,23 @@ export function AuthCard({ mode }: AuthCardProps) {
           disabled={loading}
           className="w-full rounded-md bg-action-primary py-2.5 text-sm font-semibold text-canvas hover:bg-white/90 disabled:opacity-60"
         >
-          {loading ? 'Memproses…' : mode === 'login' ? 'Masuk' : 'Daftar'}
+          {loading ? 'Processing…' : mode === 'login' ? 'Sign In' : 'Sign Up'}
         </button>
       </form>
 
       <p className="mt-4 text-center text-xs text-text-muted">
         {mode === 'login' ? (
           <>
-            Belum punya akun?{' '}
+            Don't have an account?{' '}
             <Link href="/signup" className="text-positive hover:underline">
-              Daftar
+              Sign Up
             </Link>
           </>
         ) : (
           <>
-            Sudah punya akun?{' '}
+            Already have an account?{' '}
             <Link href="/login" className="text-positive hover:underline">
-              Masuk
+              Sign In
             </Link>
           </>
         )}
