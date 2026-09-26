@@ -22,7 +22,7 @@ export function NewsPanel({ news, loading }: NewsPanelProps) {
   if (news.length === 0) {
     return (
       <div className="flex h-24 items-center justify-center text-sm text-text-muted">
-        Tidak ada berita ditemukan.
+        No news found.
       </div>
     );
   }

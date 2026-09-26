@@ -36,16 +36,16 @@ def main() -> None:
 
     st.title(f"📊 {settings.APP_NAME}")
     st.caption(
-        "Data harga & berita bersumber dari Yahoo Finance (via `yfinance`). "
-        "Data bisa tertunda beberapa menit tergantung jenis aset — bukan feed "
-        "eksekusi order, hanya untuk riset/pemantauan."
+        "Prices and news from third-party market data providers. "
+        "Data may be delayed by a few minutes depending on the asset — not an "
+        "order-execution feed, for research and monitoring only."
     )
 
     selected_symbol = render_watchlist(watchlist)
 
     if selected_symbol:
         st.divider()
-        tab_chart, tab_news = st.tabs(["📈 Grafik & Indikator", "📰 Berita"])
+        tab_chart, tab_news = st.tabs(["📈 Chart & Indicators", "📰 News"])
         with tab_chart:
             render_chart(selected_symbol)
         with tab_news:

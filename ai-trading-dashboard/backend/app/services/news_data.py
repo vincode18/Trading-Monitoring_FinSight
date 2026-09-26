@@ -32,14 +32,14 @@ def get_news_for_symbol(symbol: str, max_items: int | None = None) -> list[NewsI
     try:
         ticker = yf.Ticker(symbol)
         raw_news = ticker.news or []
-        for entry in raw_news[:max_items]:
+        for entry in raw_news:
             content = entry.get("content", entry)
             title = content.get("title") or entry.get("title")
             publisher = (
                 content.get("provider", {}).get("displayName")
                 if isinstance(content.get("provider"), dict)
                 else entry.get("publisher")
-            ) or "Yahoo Finance"
+            ) or "Market data"
             link = (
                 content.get("canonicalUrl", {}).get("url")
                 if isinstance(content.get("canonicalUrl"), dict)
@@ -52,30 +52,33 @@ def get_news_for_symbol(symbol: str, max_items: int | None = None) -> list[NewsI
     except Exception:
         pass
 
-    if items:
-        return items
-
-    try:
-        feed_url = f"https://news.google.com/rss/search?q={symbol}+stock&hl=en-US&gl=US&ceid=US:en"
-        feed = feedparser.parse(feed_url)
-        for entry in feed.entries[:max_items]:
-            published_at = None
-            if getattr(entry, "published_parsed", None):
-                published_at = datetime(*entry.published_parsed[:6], tzinfo=timezone.utc)
-            items.append(
-                NewsItem(
-                    title=entry.title,
-                    publisher=getattr(entry, "source", {}).get("title", "Google News")
-                    if hasattr(entry, "source")
-                    else "Google News",
-                    link=entry.link,
-                    published_at=published_at,
+    if not items:
+        try:
+            feed_url = f"https://news.google.com/rss/search?q={symbol}+stock&hl=en-US&gl=US&ceid=US:en"
+            feed = feedparser.parse(feed_url)
+            for entry in feed.entries:
+                published_at = None
+                if getattr(entry, "published_parsed", None):
+                    published_at = datetime(*entry.published_parsed[:6], tzinfo=timezone.utc)
+                items.append(
+                    NewsItem(
+                        title=entry.title,
+                        publisher=getattr(entry, "source", {}).get("title", "Google News")
+                        if hasattr(entry, "source")
+                        else "Google News",
+                        link=entry.link,
+                        published_at=published_at,
+                    )
                 )
-            )
-    except Exception:
-        pass
+        except Exception:
+            pass
 
-    return items
+    items_sorted = sorted(
+        items,
+        key=lambda item: item.published_at or datetime.min.replace(tzinfo=timezone.utc),
+        reverse=True,
+    )
+    return items_sorted[:max_items]
 
 
 def _parse_published(value) -> datetime | None:

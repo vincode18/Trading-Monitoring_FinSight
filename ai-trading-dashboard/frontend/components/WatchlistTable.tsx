@@ -19,7 +19,7 @@ export function WatchlistTable({
   if (loading && quotes.length === 0) {
     return (
       <div className="flex h-32 items-center justify-center text-sm text-text-muted">
-        Memuat data...
+        Loading data...
       </div>
     );
   }
@@ -27,7 +27,7 @@ export function WatchlistTable({
   if (quotes.length === 0) {
     return (
       <div className="flex h-32 items-center justify-center text-sm text-text-muted">
-        Watchlist kosong. Tambahkan simbol di sidebar.
+        Watchlist is empty. Add symbols in the sidebar.
       </div>
     );
   }
@@ -37,11 +37,12 @@ export function WatchlistTable({
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-border bg-panel text-left text-xs uppercase tracking-wide text-text-muted">
-            <th className="px-3 py-2 font-medium">Simbol</th>
-            <th className="px-3 py-2 font-medium">Nama</th>
-            <th className="px-3 py-2 text-right font-medium">Harga</th>
-            <th className="px-3 py-2 text-right font-medium">Perubahan</th>
+            <th className="px-3 py-2 font-medium">Symbol</th>
+            <th className="px-3 py-2 font-medium">Name</th>
+            <th className="px-3 py-2 text-right font-medium">Price</th>
+            <th className="px-3 py-2 text-right font-medium">Change</th>
             <th className="px-3 py-2 text-right font-medium">%</th>
+            <th className="px-3 py-2 text-right font-medium">Mkt Cap</th>
             <th className="px-3 py-2 font-medium">Status</th>
           </tr>
         </thead>
@@ -79,6 +80,17 @@ export function WatchlistTable({
                   }`}
                 >
                   {formatPercent(q.change_pct)}
+                </td>
+                <td className="px-3 py-2 text-right font-mono text-xs tabular-nums text-text-secondary">
+                  {q.market_cap != null
+                    ? q.market_cap >= 1e12
+                      ? `${(q.market_cap / 1e12).toFixed(2)}T`
+                      : q.market_cap >= 1e9
+                        ? `${(q.market_cap / 1e9).toFixed(2)}B`
+                        : q.market_cap >= 1e6
+                          ? `${(q.market_cap / 1e6).toFixed(1)}M`
+                          : q.market_cap.toFixed(0)
+                    : '—'}
                 </td>
                 <td className="px-3 py-2 text-xs text-text-muted">
                   {q.market_state || '—'}

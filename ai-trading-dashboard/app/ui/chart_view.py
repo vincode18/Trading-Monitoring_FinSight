@@ -10,38 +10,38 @@ from app.services.market_data import get_history
 
 
 def render_chart(symbol: str) -> None:
-    st.subheader(f"📈 Grafik & Indikator — {symbol}")
+    st.subheader(f"📈 Chart & Indicators — {symbol}")
 
     col1, col2, col3 = st.columns(3)
     with col1:
         period = st.selectbox(
-            "Periode", ["1mo", "3mo", "6mo", "1y", "2y", "5y"], index=2, key="chart_period"
+            "Period", ["1mo", "3mo", "6mo", "1y", "2y", "5y"], index=2, key="chart_period"
         )
     with col2:
         interval = st.selectbox(
             "Interval", ["1d", "1wk", "1h", "30m", "15m"], index=0, key="chart_interval"
         )
     with col3:
-        show_bb = st.checkbox("Tampilkan Bollinger Bands", value=False, key="chart_show_bb")
+        show_bb = st.checkbox("Show Bollinger Bands", value=False, key="chart_show_bb")
 
-    with st.spinner("Memuat data historis..."):
+    with st.spinner("Loading historical data..."):
         try:
             df = get_history(symbol, period=period, interval=interval)
         except Exception as exc:
-            st.error(f"Gagal memuat data historis: {exc}")
+            st.error(f"Failed to load historical data: {exc}")
             return
 
     if df is None or df.empty or "Close" not in df.columns:
         st.warning(
-            "Data tidak tersedia untuk kombinasi periode/interval ini. "
-            "Coba periode lebih pendek untuk interval menit/jam."
+            "Data is not available for this period/interval combination. "
+            "Try a shorter period for minute/hour intervals."
         )
         return
 
     try:
         df = add_all_indicators(df)
     except Exception as exc:
-        st.error(f"Gagal menghitung indikator: {exc}")
+        st.error(f"Failed to compute indicators: {exc}")
         return
 
     fig = make_subplots(
@@ -50,7 +50,7 @@ def render_chart(symbol: str) -> None:
         shared_xaxes=True,
         row_heights=[0.55, 0.2, 0.25],
         vertical_spacing=0.03,
-        subplot_titles=("Harga", "RSI (14)", "MACD"),
+        subplot_titles=("Price", "RSI (14)", "MACD"),
     )
 
     x_axis = df["Date"] if "Date" in df.columns else df.index
@@ -63,7 +63,7 @@ def render_chart(symbol: str) -> None:
             high=df["High"],
             low=df["Low"],
             close=df["Close"],
-            name="Harga",
+            name="Price",
         ),
         row=1,
         col=1,
@@ -127,7 +127,7 @@ def render_chart(symbol: str) -> None:
     st.plotly_chart(fig, use_container_width=True)
 
     st.caption(
-        "⚠️ Ringkasan kondisi teknikal berbasis aturan sederhana — "
-        "ini BUKAN rekomendasi beli/jual, hanya bantuan baca indikator."
+        "⚠️ Technical summary based on simple rules — "
+        "this is NOT a buy/sell recommendation, only an indicator reading aid."
     )
-    st.info(f"**Kondisi teknikal terkini:** {simple_signal(df)}")
+    st.info(f"**Current technical condition:** {simple_signal(df)}")

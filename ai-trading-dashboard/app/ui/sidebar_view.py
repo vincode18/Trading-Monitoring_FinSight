@@ -9,13 +9,13 @@ from app.services.market_data import search_symbol
 
 def render_sidebar() -> list[str]:
     st.sidebar.title(f"⚙️ {settings.APP_NAME}")
-    st.sidebar.caption("Tahap 1 — Dashboard Lokal (data via Yahoo Finance)")
+    st.sidebar.caption("Stage 1 — Local dashboard (third-party market data)")
 
     if "watchlist" not in st.session_state:
         st.session_state.watchlist = list(settings.DEFAULT_WATCHLIST)
 
-    st.sidebar.subheader("Cari & Tambah Simbol")
-    query = st.sidebar.text_input("Cari nama saham/crypto/index...", key="symbol_search")
+    st.sidebar.subheader("Search & Add Symbol")
+    query = st.sidebar.text_input("Search stock / crypto / index...", key="symbol_search")
     if query:
         results = search_symbol(query)
         for r in results:
@@ -25,7 +25,7 @@ def render_sidebar() -> list[str]:
                     st.session_state.watchlist.append(r["symbol"])
                     st.rerun()
 
-    st.sidebar.subheader("Watchlist Saat Ini")
+    st.sidebar.subheader("Current Watchlist")
     to_remove = None
     for sym in st.session_state.watchlist:
         col1, col2 = st.sidebar.columns([3, 1])
@@ -38,9 +38,9 @@ def render_sidebar() -> list[str]:
 
     st.sidebar.divider()
     manual_symbol = st.sidebar.text_input(
-        "Atau ketik simbol manual (contoh: GOTO.JK, ETH-USD)", key="manual_add"
+        "Or type a symbol manually (e.g. GOTO.JK, ETH-USD)", key="manual_add"
     )
-    if st.sidebar.button("Tambah Simbol Manual") and manual_symbol:
+    if st.sidebar.button("Add Symbol Manually") and manual_symbol:
         sym = manual_symbol.strip().upper()
         if sym not in st.session_state.watchlist:
             st.session_state.watchlist.append(sym)
@@ -48,9 +48,9 @@ def render_sidebar() -> list[str]:
 
     st.sidebar.divider()
     st.sidebar.caption(
-        "💡 Roadmap: Tahap 2 akan menambahkan backend + database multi-user. "
-        "Tahap 3 akan menambahkan login, role Admin/Member, dan billing "
-        "(Transfer Bank / Midtrans)."
+        "💡 Roadmap: Stage 2 adds a multi-user backend + database. "
+        "Stage 3 adds login, Admin/Member roles, and billing "
+        "(bank transfer / Midtrans)."
     )
 
     return st.session_state.watchlist
